@@ -19,7 +19,7 @@ public [Open-Meteo](https://open-meteo.com/) APIs.
 | Module | Owner | Status |
 | --- | --- | --- |
 | Weather Engine | Member 1 | implemented — see [`docs/weather-engine.md`](docs/weather-engine.md) |
-| Adaptive experience | Member 2 | pending |
+| Adaptive experience | Member 2 | implemented — see [`docs/adaptive-experience.md`](docs/adaptive-experience.md) |
 | Community, maps, PWA | Member 3 | pending |
 
 ## Weather Engine (Member 1)
@@ -40,6 +40,21 @@ public [Open-Meteo](https://open-meteo.com/) APIs.
 
 The Weather Engine exposes normalized weather data only; warning and
 recommendation logic is owned by Member 2.
+
+## Adaptive Experience (Member 2)
+
+- 24-hour chrono-UI scrubber: today/tomorrow tabs, hour-by-hour timeline with
+  past/current/future states, click or keyboard selection.
+- Heat-stress estimates: heat index (NWS Rothfusz, ≥27°C and ≥40% RH only) and
+  wet-bulb (Stull 2011), each with conditions/limits and a disclaimer.
+- Activity-priority cards (walking, running, cycling, sports, picnic,
+  sightseeing) with recommended / caution / not-recommended / unknown statuses
+  and bilingual precautions.
+- Personalized advisory text plus EN/HI speech synthesis (user-initiated only,
+  never autoplayed); language choice persists locally.
+- All thresholds and bilingual copy live in `src/config/adaptiveThresholds.js`
+  and `src/config/adaptiveCopy.js`; pure logic is in `src/services/` (see
+  [`docs/adaptive-experience.md`](docs/adaptive-experience.md)).
 
 Weather data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0). This is a
 prototype and is **not** an official IMD service.

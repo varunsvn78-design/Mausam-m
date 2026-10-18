@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { useWeatherEngine } from './hooks/useWeatherEngine.js'
 import LocationSearch from './components/LocationSearch.jsx'
 import CurrentWeatherCard from './components/CurrentWeatherCard.jsx'
+import AdaptiveExperience from './components/AdaptiveExperience.jsx'
 import DailyForecast from './components/DailyForecast.jsx'
 import RecentLocations from './components/RecentLocations.jsx'
 import {
@@ -140,6 +141,7 @@ export default function App() {
               </p>
             )}
             <CurrentWeatherCard weather={weather} />
+            <AdaptiveExperience weather={weather} />
             <DailyForecast weather={weather} />
             <p className="data-timestamp">
               Data fetched {weather.fetchedAt ? new Date(weather.fetchedAt).toLocaleString() : ''} · Source:{' '}
