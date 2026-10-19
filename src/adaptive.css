@@ -13,9 +13,10 @@
 .activities__eyebrow,
 .advisory__eyebrow {
   font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-text-muted);
+  color: var(--accent-cyan);
 }
 
 .adaptive__title {
@@ -88,17 +89,19 @@
   background: var(--color-surface-alt);
   color: var(--color-text);
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.16s var(--ease-out), border-color 0.16s var(--ease-out),
+    color 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out);
 }
 
 .chrono__day:hover {
-  border-color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-border));
 }
 
 .chrono__day.is-active {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-primary-contrast);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-primary) 34%, transparent);
 }
 
 .chrono__now {
@@ -117,13 +120,23 @@
   position: relative;
   margin-top: 46px;
   user-select: none;
+  background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent-cyan) 5%, transparent),
+      transparent 55%
+    ),
+    var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 14px 14px 8px;
+  box-shadow: inset 0 1px 0 var(--surface-hairline);
 }
 
 .chrono__columns {
   display: grid;
   grid-template-columns: repeat(24, minmax(0, 1fr));
   gap: 2px;
-  height: 94px;
+  height: 96px;
   padding-top: 18px;
 }
 
@@ -133,19 +146,21 @@
   align-items: flex-end;
   justify-content: center;
   border-radius: var(--radius-sm);
-  transition: background-color 0.15s ease;
+  transition: background-color 0.16s var(--ease-out);
 }
 
 .chrono__col.is-selected {
   background: var(--chrono-selection);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 .chrono__bar {
   position: relative;
-  width: 64%;
+  width: 68%;
   min-height: 4px;
   border-radius: 6px 6px 3px 3px;
   background: linear-gradient(180deg, var(--viz-future-from), var(--viz-future-to));
+  box-shadow: 0 -2px 12px color-mix(in srgb, var(--accent-amber) 20%, transparent);
 }
 
 .chrono__col--past .chrono__bar {
@@ -155,6 +170,7 @@
 
 .chrono__col--current .chrono__bar {
   background: linear-gradient(180deg, var(--viz-now-from), var(--viz-now-to));
+  box-shadow: 0 -2px 14px color-mix(in srgb, var(--accent-teal) 32%, transparent);
 }
 
 .chrono__col--missing .chrono__bar {
@@ -198,21 +214,23 @@
 .chrono__rain-tick {
   justify-self: center;
   display: block;
-  width: 64%;
+  width: 68%;
   height: 0;
   border-radius: 3px;
   background: var(--viz-rain);
+  transition: height 0.2s var(--ease-out);
 }
 
 .chrono__rain-tick.is-selected {
   background: var(--viz-rain-strong);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--viz-rain-strong) 45%, transparent);
 }
 
 .chrono__bubble {
   position: absolute;
   top: -34px;
   transform: translateX(-50%);
-  padding: 3px 9px;
+  padding: 3px 10px;
   border-radius: 999px;
   background: var(--color-primary);
   color: var(--color-primary-contrast);
@@ -221,6 +239,7 @@
   font-variant-numeric: tabular-nums;
   pointer-events: none;
   z-index: 4;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 .chrono__bubble::after {
@@ -238,7 +257,8 @@
   top: -8px;
   bottom: 0;
   width: 0;
-  border-left: 2px dashed var(--color-success);
+  border-left: 2px dashed var(--accent-teal);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent-teal) 55%, transparent));
   z-index: 3;
   pointer-events: none;
 }
@@ -256,12 +276,13 @@
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-success);
+  color: var(--accent-teal);
   background: var(--color-surface);
   border: 1px solid currentColor;
   border-radius: 999px;
   padding: 2px 8px;
   white-space: nowrap;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--accent-teal) 30%, transparent);
 }
 
 .chrono__range {
@@ -304,6 +325,7 @@
   border-radius: var(--radius-sm);
   border: 2px solid var(--color-primary);
   background: var(--chrono-thumb-bg);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 34%, transparent);
   cursor: grab;
 }
 
@@ -320,6 +342,7 @@
   border-radius: var(--radius-sm);
   border: 2px solid var(--color-primary);
   background: var(--chrono-thumb-bg);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 34%, transparent);
   cursor: grab;
 }
 
@@ -394,8 +417,15 @@
 
 .chrono__readout {
   margin-top: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+      140deg,
+      color-mix(in srgb, var(--accent-cyan) 6%, transparent),
+      transparent 52%
+    ),
+    var(--color-surface-alt);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -430,20 +460,20 @@
   padding: 3px 9px;
   border-radius: 999px;
   border: 1px solid var(--color-border);
-  background: var(--color-surface-alt);
+  background: var(--color-surface);
   color: var(--color-text-muted);
 }
 
 .chrono__state--current {
-  color: var(--color-success);
+  color: var(--accent-teal);
   border-color: currentColor;
-  background: transparent;
+  background: color-mix(in srgb, var(--accent-teal) 10%, transparent);
 }
 
 .chrono__state--future {
   color: var(--color-primary);
   border-color: currentColor;
-  background: transparent;
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .chrono__state--missing {
@@ -508,6 +538,24 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
+  transition: border-color 0.18s var(--ease-out), transform 0.18s var(--ease-out),
+    box-shadow 0.18s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .estimate:hover {
+    border-color: color-mix(in srgb, var(--accent-cyan) 38%, var(--color-border));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  @media (hover: hover) {
+    .estimate:hover {
+      border-color: color-mix(in srgb, var(--color-primary) 38%, var(--color-border));
+    }
+  }
 }
 
 .estimate__head {
@@ -532,8 +580,8 @@
   letter-spacing: 0.07em;
   padding: 3px 9px;
   border-radius: 999px;
-  background: rgba(11, 107, 203, 0.1);
-  border: 1px solid rgba(11, 107, 203, 0.4);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 42%, transparent);
   color: var(--color-primary);
 }
 
@@ -565,7 +613,7 @@
 
 .estimate__category--info {
   color: var(--color-primary);
-  background: rgba(11, 107, 203, 0.1);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 
 .estimate__category--warning {
@@ -630,12 +678,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  background: var(--color-surface-alt);
+  background: linear-gradient(160deg, var(--surface-sheen), transparent 45%), var(--color-surface-alt);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-4) var(--space-4) var(--space-4) calc(var(--space-4) + 4px);
   overflow: hidden;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out),
+    border-color 0.18s var(--ease-out);
 }
 
 .activity::before {
@@ -684,9 +733,18 @@
   height: 42px;
   flex-shrink: 0;
   border-radius: var(--radius-md);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-primary);
+  background: linear-gradient(140deg, color-mix(in srgb, var(--accent-cyan) 24%, transparent), transparent),
+    var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--accent-cyan) 34%, var(--color-border));
+  color: var(--accent-cyan);
+}
+
+@media (prefers-color-scheme: light) {
+  .activity__badge-icon {
+    background: var(--color-surface);
+    border-color: color-mix(in srgb, var(--color-primary) 34%, var(--color-border));
+    color: var(--color-primary);
+  }
 }
 
 .activity__identity {
@@ -724,6 +782,7 @@
 
 .activity__badge--recommended {
   color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
 }
 
 .activity__badge--caution {
@@ -865,6 +924,7 @@
 .advisory__lang.is-active {
   background: var(--color-primary);
   color: var(--color-primary-contrast);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--color-primary) 38%, transparent);
 }
 
 .advisory__buttons {
@@ -887,8 +947,14 @@
 
 .advisory__text {
   margin-top: var(--space-2);
-  background: var(--color-surface-alt);
+  background: linear-gradient(
+      150deg,
+      color-mix(in srgb, var(--accent-cyan) 5%, transparent),
+      transparent 48%
+    ),
+    var(--color-surface-alt);
   border: 1px solid var(--color-border);
+  border-left: 3px solid var(--accent-cyan);
   border-radius: var(--radius-md);
   padding: var(--space-4);
 }

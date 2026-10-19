@@ -34,6 +34,11 @@ export function DailyForecast({ weather }) {
 
   const today = todayInTimeZone(timezone)
 
+  const temps = daily.flatMap((day) => [day.temperatureMin, day.temperatureMax]).filter((t) => t !== null)
+  const rangeMin = temps.length > 0 ? Math.min(...temps) : 0
+  const rangeMax = temps.length > 0 ? Math.max(...temps) : 1
+  const rangeSpan = Math.max(rangeMax - rangeMin, 1)
+
   return (
     <section className="card forecast" aria-labelledby="forecast-heading">
       <header className="section-head">
@@ -46,6 +51,9 @@ export function DailyForecast({ weather }) {
       <ul className="forecast-list">
         {daily.map((day) => {
           const isToday = day.date === today
+          const hasRange = day.temperatureMin !== null && day.temperatureMax !== null
+          const left = hasRange ? ((day.temperatureMin - rangeMin) / rangeSpan) * 100 : 0
+          const width = hasRange ? ((day.temperatureMax - day.temperatureMin) / rangeSpan) * 100 : 100
           return (
             <li key={day.date} className="forecast-item">
               <div className="forecast-item__date">
@@ -72,6 +80,21 @@ export function DailyForecast({ weather }) {
                   {day.precipitationProbability === null || day.precipitationProbability === undefined
                     ? `${PLACEHOLDER} rain`
                     : `${formatNumber(day.precipitationProbability, { suffix: units.precipitationProbability })} rain`}
+                </span>
+              </div>
+
+              <div
+                className="forecast-item__range"
+                role="img"
+                aria-label={`Low ${formatTemperature(day.temperatureMin)}, high ${formatTemperature(
+                  day.temperatureMax,
+                )}`}
+              >
+                <span className="forecast-item__range-track" aria-hidden="true">
+                  <span
+                    className="forecast-item__range-fill"
+                    style={{ left: `${left}%`, width: `${Math.max(width, 4)}%` }}
+                  />
                 </span>
               </div>
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import WeatherIcon from './WeatherIcon.jsx'
+import { CloudDrizzle, CloudRain, Droplets, Moon, Sun, Thermometer, Wind } from 'lucide-react'
 import { dayPhrase } from '../services/advisoryEngine.js'
 import { classifyHour, dayTemperatureRange } from '../services/timeline.js'
 import { TIMELINE_COPY, conditionLabel, hourStateLabel } from '../config/adaptiveCopy.js'
@@ -272,30 +273,48 @@ export function ChronoTimeline({
 
           <dl className="metric-grid chrono__metrics">
             <div className="metric">
-              <dt>{language === 'hi' ? 'अहसास' : 'Feels like'}</dt>
+              <dt>
+                <Thermometer size={14} aria-hidden="true" />
+                {language === 'hi' ? 'अहसास' : 'Feels like'}
+              </dt>
               <dd>{formatTemperature(selectedPoint.apparentTemperature)}</dd>
             </div>
             <div className="metric">
-              <dt>{language === 'hi' ? 'आर्द्रता' : 'Humidity'}</dt>
+              <dt>
+                <Droplets size={14} aria-hidden="true" />
+                {language === 'hi' ? 'आर्द्रता' : 'Humidity'}
+              </dt>
               <dd>{formatNumber(selectedPoint.relativeHumidity, { suffix: '%' })}</dd>
             </div>
             <div className="metric">
-              <dt>{language === 'hi' ? 'हवा' : 'Wind'}</dt>
+              <dt>
+                <Wind size={14} aria-hidden="true" />
+                {language === 'hi' ? 'हवा' : 'Wind'}
+              </dt>
               <dd>
                 {formatNumber(selectedPoint.windSpeed, { suffix: ' km/h' })}
                 {windDirection ? <span className="metric__hint"> {windDirection}</span> : null}
               </dd>
             </div>
             <div className="metric">
-              <dt>{language === 'hi' ? 'बारिश की संभावना' : 'Rain chance'}</dt>
+              <dt>
+                <CloudDrizzle size={14} aria-hidden="true" />
+                {language === 'hi' ? 'बारिश की संभावना' : 'Rain chance'}
+              </dt>
               <dd>{formatNumber(selectedPoint.precipitationProbability, { suffix: '%' })}</dd>
             </div>
             <div className="metric">
-              <dt>{language === 'hi' ? 'वर्षा (1 घंटा)' : 'Precipitation (1 h)'}</dt>
+              <dt>
+                <CloudRain size={14} aria-hidden="true" />
+                {language === 'hi' ? 'वर्षा (1 घंटा)' : 'Precipitation (1 h)'}
+              </dt>
               <dd>{formatNumber(selectedPoint.precipitation, { suffix: ' mm', digits: 1 })}</dd>
             </div>
             <div className="metric">
-              <dt>{language === 'hi' ? 'रोशनी' : 'Daylight'}</dt>
+              <dt>
+                {selectedPoint.isDay ? <Sun size={14} aria-hidden="true" /> : <Moon size={14} aria-hidden="true" />}
+                {language === 'hi' ? 'रोशनी' : 'Daylight'}
+              </dt>
               <dd>
                 {typeof selectedPoint.isDay === 'boolean'
                   ? selectedPoint.isDay

@@ -76,17 +76,20 @@ export default function App() {
       <header className="app__header">
         <div className="app__brand">
           <span className="app__logo" aria-hidden="true">
-            <svg viewBox="0 0 32 32" width="28" height="28">
+            <svg viewBox="0 0 32 32" width="26" height="26">
               <path
-                d="M9 22h13a5 5 0 0 0 .4-10A7.5 7.5 0 0 0 8 13.6 4.8 4.8 0 0 0 9 22Z"
+                d="M9 20h13a5 5 0 0 0 .4-10A7.5 7.5 0 0 0 8 11.6 4.8 4.8 0 0 0 9 20Z"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
               />
+              <path d="M13 24.5 11.8 27M18 24.5 16.8 27M23 24.5 21.8 27" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </span>
-          <div>
-            <h1 className="app__title">MAUSAM</h1>
+          <div className="app__brand-text">
+            <h1 className="app__title">
+              MAUSAM <span className="app__title-badge">2.0</span>
+            </h1>
             <p className="app__subtitle">Weather intelligence &amp; daily planning</p>
           </div>
           <ConnectivityPill isOnline={isOnline} />

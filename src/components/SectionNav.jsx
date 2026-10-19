@@ -1,4 +1,12 @@
 import { useEffect, useState } from 'react'
+import { Clock3, LayoutDashboard, Sparkles, Users } from 'lucide-react'
+
+const SECTION_ICONS = {
+  overview: LayoutDashboard,
+  plan: Clock3,
+  insights: Sparkles,
+  community: Users,
+}
 
 /**
  * In-page section navigation (Overview / Plan / Community).
@@ -47,17 +55,21 @@ export function SectionNav({ sections }) {
   return (
     <nav className="section-nav" aria-label="Page sections">
       <ul className="section-nav__list">
-        {sections.map((section) => (
-          <li key={section.id}>
-            <a
-              href={`#${section.id}`}
-              className={`section-nav__link${activeId === section.id ? ' is-active' : ''}`}
-              aria-current={activeId === section.id ? 'true' : undefined}
-            >
-              {section.label}
-            </a>
-          </li>
-        ))}
+        {sections.map((section) => {
+          const Icon = SECTION_ICONS[section.id]
+          return (
+            <li key={section.id}>
+              <a
+                href={`#${section.id}`}
+                className={`section-nav__link${activeId === section.id ? ' is-active' : ''}`}
+                aria-current={activeId === section.id ? 'true' : undefined}
+              >
+                {Icon ? <Icon className="section-nav__icon" size={15} aria-hidden="true" /> : null}
+                {section.label}
+              </a>
+            </li>
+          )
+        })}
       </ul>
     </nav>
   )

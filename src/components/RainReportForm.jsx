@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Clock3 } from 'lucide-react'
 import {
   OBSERVATION_TYPES,
   validateReport,
@@ -212,7 +213,7 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
         </div>
 
         <p className="report-form__time">
-          <span aria-hidden="true">🕒</span> Submission time (device clock):{' '}
+          <Clock3 size={15} aria-hidden="true" /> Submission time (device clock):{' '}
           <strong>{formatDeviceTime(clockAt)}</strong>
         </p>
 

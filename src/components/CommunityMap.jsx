@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { WifiOff } from 'lucide-react'
 import { DEMO_MARKERS, RAIN_STATUS_META, MAP_FALLBACK_VIEW } from '../config/communityDemo.js'
 import { useOnlineStatus } from '../hooks/useOnlineStatus.js'
 
@@ -288,7 +289,7 @@ export function CommunityMap({ location, isActive = true }) {
 
       {status === 'ready' && !isOnline && (
         <p className="community-map__offline-note" role="status">
-          <span aria-hidden="true">📶</span> You are offline — map tiles need a connection. Markers and legend
+          <WifiOff size={15} aria-hidden="true" /> You are offline — map tiles need a connection. Markers and legend
           remain visible from the loaded app.
         </p>
       )}

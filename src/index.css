@@ -1,51 +1,92 @@
 /* MAUSAM design tokens + base styles (shared by all members' modules). */
 
 :root {
-  /* Atmosphere-inspired neutrals + signal colours */
-  --color-bg: #edf1f7;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f4f7fb;
-  --color-border: #d5deea;
-  --color-border-strong: #b9c6d8;
-  --color-text: #0f1b2a;
-  --color-text-muted: #4f5f78;
-  --color-primary: #0b6bcb;
-  --color-primary-strong: #084f97;
-  --color-primary-contrast: #ffffff;
-  --color-success: #127a4a;
-  --color-warning-bg: #fff5e0;
-  --color-warning-border: #e8b338;
-  --color-warning-text: #6b4708;
-  --color-danger: #b3261e;
-  --color-danger-bg: #fdeceb;
-  --color-offline-bg: #e7eef7;
-  --color-offline-border: #7a8ba3;
+  /* Midnight atmosphere — dark is the default identity of MAUSAM 2.0. */
+  --color-bg: #060b14;
+  --color-surface: #0d1524;
+  --color-surface-alt: #111b2e;
+  --color-border: #1e2c44;
+  --color-border-strong: #2c3e5c;
+  --color-text: #e9eef8;
+  --color-text-muted: #94a5c0;
 
-  /* App header gradient (atmospheric blue, calm not neon) */
-  --header-from: #0c3d6e;
-  --header-to: #0b6bcb;
+  /* Signal accents — cyan leads, teal confirms, amber cautions. */
+  --color-primary: #4cc2ff;
+  --color-primary-strong: #7ad4ff;
+  --color-primary-contrast: #04121f;
+  --color-success: #3ddbb4;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-border: #f5a524;
+  --color-warning-text: #ffd88a;
+  --color-danger: #ff7d8a;
+  --color-danger-bg: rgba(255, 125, 138, 0.1);
+  --color-offline-bg: #131f33;
+  --color-offline-border: #3b4f6e;
+
+  /* Accent extras (used by new premium surfaces) */
+  --accent-cyan: #4cc2ff;
+  --accent-teal: #3ddbb4;
+  --accent-amber: #f5a524;
+  --accent-violet: #8b93ff;
+
+  /* App header gradient (midnight blue into deep teal-navy) */
+  --header-from: #071122;
+  --header-to: #0c2f4e;
+
+  /* Masthead chrome — the header stays dark in both themes, so these don't flip. */
+  --on-header: #f2f7ff;
+  --on-header-soft: #b7c7de;
+  --on-header-muted: #93a7c4;
+  --header-hairline: rgba(255, 255, 255, 0.08);
+  --header-hover: rgba(255, 255, 255, 0.14);
+  --header-tile-bg: linear-gradient(140deg, rgba(76, 194, 255, 0.28), rgba(61, 219, 180, 0.16));
+  --header-tile-border: rgba(255, 255, 255, 0.22);
+  --header-tile-shadow: 0 6px 18px rgba(4, 18, 31, 0.35);
+  --header-tile-text: #dff3ff;
+  --header-badge-bg: rgba(76, 194, 255, 0.22);
+  --header-badge-border: rgba(76, 194, 255, 0.55);
+  --header-badge-text: #b8ecff;
+  --header-field-bg: rgba(4, 10, 19, 0.42);
+  --header-field-border: rgba(255, 255, 255, 0.2);
+  --header-field-hairline: rgba(255, 255, 255, 0.06);
+  --header-field-text: #eef4ff;
+  --header-ring: rgba(76, 194, 255, 0.7);
+  --header-ring-soft: rgba(76, 194, 255, 0.22);
+  --header-pill-offline-bg: rgba(16, 24, 38, 0.35);
+  --header-pill-offline-border: rgba(255, 255, 255, 0.25);
+  --on-header-chip-bg: rgba(255, 255, 255, 0.16);
+  --on-header-chip-border: rgba(255, 255, 255, 0.45);
+
+  /* Component rings (map markers, legend dots) */
+  --marker-ring: rgba(16, 24, 38, 0.4);
+  --marker-ring-soft: rgba(16, 24, 38, 0.35);
+
+  /* Subtle surface effects */
+  --surface-sheen: rgba(255, 255, 255, 0.025);
+  --surface-hairline: rgba(255, 255, 255, 0.03);
 
   /* Data-visualisation palette (chrono bars, rain ticks, sparklines) */
-  --viz-future-from: #f0a05e;
-  --viz-future-to: #de7c33;
-  --viz-past-from: #a3b5ca;
-  --viz-past-to: #8194ab;
-  --viz-now-from: #2ea870;
+  --viz-future-from: #f5a524;
+  --viz-future-to: #d97706;
+  --viz-past-from: #55678a;
+  --viz-past-to: #3d4d6b;
+  --viz-now-from: #3ddbb4;
   --viz-now-to: var(--color-success);
-  --viz-rain: rgba(11, 107, 203, 0.55);
+  --viz-rain: rgba(76, 194, 255, 0.55);
   --viz-rain-strong: var(--color-primary);
-  --chrono-selection: rgba(11, 107, 203, 0.09);
-  --chrono-thumb-bg: rgba(11, 107, 203, 0.16);
+  --chrono-selection: rgba(76, 194, 255, 0.1);
+  --chrono-thumb-bg: rgba(76, 194, 255, 0.16);
 
   /* Hero tints (set per-state via inline --hero-tint) */
-  --hero-day: rgba(240, 160, 94, 0.09);
-  --hero-night: rgba(98, 116, 200, 0.1);
+  --hero-day: rgba(245, 165, 36, 0.1);
+  --hero-night: rgba(76, 194, 255, 0.08);
 
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
-  --shadow-sm: 0 1px 2px rgba(15, 27, 42, 0.06), 0 2px 8px rgba(15, 27, 42, 0.05);
-  --shadow-md: 0 6px 24px rgba(15, 27, 42, 0.09);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.5);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -54,55 +95,63 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --font-sans: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --max-width: 1080px;
-  --nav-height: 48px;
+  --nav-height: 52px;
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Light theme for users who ask for it — same architecture, calmer canvas. */
+@media (prefers-color-scheme: light) {
   :root {
-    --color-bg: #0c141f;
-    --color-surface: #131f2e;
-    --color-surface-alt: #0f1a27;
-    --color-border: #24344a;
-    --color-border-strong: #354963;
-    --color-text: #eaf1fb;
-    --color-text-muted: #9db0c9;
-    --color-primary: #62aaf7;
-    --color-primary-strong: #8cc4ff;
-    --color-primary-contrast: #06121f;
-    --color-success: #4ecf94;
-    --color-warning-bg: #3a2f14;
-    --color-warning-border: #b98b1f;
-    --color-warning-text: #ffe0a3;
-    --color-danger: #ff8f86;
-    --color-danger-bg: #3a1b19;
-    --color-offline-bg: #1b2738;
-    --color-offline-border: #4a5e79;
+    --color-bg: #eef3fa;
+    --color-surface: #ffffff;
+    --color-surface-alt: #f4f7fb;
+    --color-border: #d5deea;
+    --color-border-strong: #b9c6d8;
+    --color-text: #0f1b2a;
+    --color-text-muted: #4f5f78;
+    --color-primary: #0b6bcb;
+    --color-primary-strong: #084f97;
+    --color-primary-contrast: #ffffff;
+    --color-success: #0e7a55;
+    --color-warning-bg: #fff5e0;
+    --color-warning-border: #e8b338;
+    --color-warning-text: #6b4708;
+    --color-danger: #b3261e;
+    --color-danger-bg: #fdeceb;
+    --color-offline-bg: #e7eef7;
+    --color-offline-border: #7a8ba3;
 
-    --header-from: #0a2740;
-    --header-to: #0d4a85;
+    --accent-cyan: #0b6bcb;
+    --accent-teal: #0e7a55;
+    --accent-amber: #b9770e;
+    --accent-violet: #5563c9;
 
-    --viz-future-from: #e79a58;
-    --viz-future-to: #c96f2d;
-    --viz-past-from: #5f7289;
-    --viz-past-to: #46586e;
-    --viz-now-from: #2ea870;
-    --viz-now-to: #4ecf94;
-    --viz-rain: rgba(98, 170, 247, 0.5);
+    --header-from: #0c3d6e;
+    --header-to: #0b6bcb;
+
+    --viz-future-from: #f0a05e;
+    --viz-future-to: #de7c33;
+    --viz-past-from: #a3b5ca;
+    --viz-past-to: #8194ab;
+    --viz-now-from: #12996a;
+    --viz-now-to: var(--color-success);
+    --viz-rain: rgba(11, 107, 203, 0.55);
     --viz-rain-strong: var(--color-primary);
-    --chrono-selection: rgba(98, 170, 247, 0.12);
-    --chrono-thumb-bg: rgba(98, 170, 247, 0.18);
+    --chrono-selection: rgba(11, 107, 203, 0.09);
+    --chrono-thumb-bg: rgba(11, 107, 203, 0.16);
 
-    --hero-day: rgba(231, 154, 88, 0.08);
-    --hero-night: rgba(120, 138, 226, 0.12);
+    --hero-day: rgba(240, 160, 94, 0.09);
+    --hero-night: rgba(98, 116, 200, 0.1);
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --shadow-sm: 0 1px 2px rgba(15, 27, 42, 0.06), 0 2px 8px rgba(15, 27, 42, 0.05);
+    --shadow-md: 0 6px 24px rgba(15, 27, 42, 0.09);
+    --shadow-lg: 0 16px 44px rgba(15, 27, 42, 0.14);
 
-    color-scheme: dark;
+    color-scheme: light;
   }
 }
 
@@ -123,11 +172,46 @@ html {
 }
 
 body {
-  background: var(--color-bg);
+  background:
+    radial-gradient(
+      1100px 520px at 82% -12%,
+      color-mix(in srgb, var(--accent-cyan) 7%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(900px 480px at -12% 22%, color-mix(in srgb, var(--accent-teal) 5%, transparent), transparent 60%),
+    var(--color-bg);
+  background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent-cyan) 30%, transparent);
+  color: var(--color-text);
+}
+
+/* Thin, quiet scrollbars — premium feel on desktop. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* Anchor targets clear the sticky section nav. */
@@ -146,6 +230,24 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .metric:hover,
+  .estimate:hover,
+  .demo-card:hover,
+  .farm-op:hover,
+  .forecast-item:hover {
+    transform: none !important;
+    box-shadow: none;
+  }
+}
+
+/* Gradient hero temperature must stay readable in forced-colors mode. */
+@media (forced-colors: active) {
+  .current-weather__temp {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: var(--color-text);
   }
 }
 
@@ -260,11 +362,17 @@ summary:focus-visible,
 /* ------------------------------------------------------------------ cards */
 
 .card {
-  background: var(--color-surface);
+  background: linear-gradient(180deg, var(--surface-sheen), transparent 38%), var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: var(--space-5);
+}
+
+@media (prefers-color-scheme: light) {
+  .card {
+    background: var(--color-surface);
+  }
 }
 
 .stack {
@@ -295,7 +403,7 @@ summary:focus-visible,
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-text-muted);
+  color: var(--accent-cyan);
 }
 
 .section-head__title {
@@ -472,16 +580,20 @@ summary:focus-visible,
 /* ---------------------------------------------------------------- weather */
 
 .weather-icon {
-  color: var(--color-primary);
+  color: var(--accent-cyan);
   flex-shrink: 0;
 }
 
 .weather-icon--night {
-  color: #7c86d8;
+  color: var(--accent-violet);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
+  .weather-icon {
+    color: var(--color-primary);
+  }
+
   .weather-icon--night {
-    color: #a9b2ff;
+    color: var(--accent-violet);
   }
 }

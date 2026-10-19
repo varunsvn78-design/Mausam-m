@@ -1,4 +1,5 @@
 import WeatherIcon from './WeatherIcon.jsx'
+import { CloudDrizzle, CloudRain, Droplets, Moon, Sun, Thermometer, Wind } from 'lucide-react'
 import {
   PLACEHOLDER,
   degreesToCompass,
@@ -54,32 +55,44 @@ export function CurrentWeatherCard({ weather }) {
 
       <dl className="metric-grid">
         <div className="metric">
-          <dt>Feels like</dt>
+          <dt>
+            <Thermometer size={14} aria-hidden="true" /> Feels like
+          </dt>
           <dd>{formatTemperature(current.apparentTemperature)}</dd>
         </div>
         <div className="metric">
-          <dt>Humidity</dt>
+          <dt>
+            <Droplets size={14} aria-hidden="true" /> Humidity
+          </dt>
           <dd>{formatNumber(current.relativeHumidity, { suffix: units.humidity })}</dd>
         </div>
         <div className="metric">
-          <dt>Wind</dt>
+          <dt>
+            <Wind size={14} aria-hidden="true" /> Wind
+          </dt>
           <dd>
             {formatNumber(current.windSpeed, { suffix: ` ${units.windSpeed}` })}
             {windDirection ? <span className="metric__hint"> from {windDirection}</span> : null}
           </dd>
         </div>
         <div className="metric">
-          <dt>Rain chance</dt>
+          <dt>
+            <CloudDrizzle size={14} aria-hidden="true" /> Rain chance
+          </dt>
           <dd title="Precipitation probability for the current hour">
             {formatNumber(current.precipitationProbability, { suffix: units.precipitationProbability })}
           </dd>
         </div>
         <div className="metric">
-          <dt>Precipitation (1 h)</dt>
+          <dt>
+            <CloudRain size={14} aria-hidden="true" /> Precipitation (1 h)
+          </dt>
           <dd>{formatNumber(current.precipitation, { suffix: ` ${units.precipitation}`, digits: 1 })}</dd>
         </div>
         <div className="metric">
-          <dt>Daylight</dt>
+          <dt>
+            {isDay ? <Sun size={14} aria-hidden="true" /> : <Moon size={14} aria-hidden="true" />} Daylight
+          </dt>
           <dd>{isDay ? 'Day' : 'Night'}</dd>
         </div>
       </dl>
