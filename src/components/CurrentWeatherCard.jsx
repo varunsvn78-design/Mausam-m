@@ -20,7 +20,11 @@ export function CurrentWeatherCard({ weather }) {
   const locationMeta = [location?.district, location?.region, location?.country].filter(Boolean).join(', ')
 
   return (
-    <section className="card current-weather" aria-labelledby="current-weather-heading">
+    <section
+      className="card current-weather"
+      aria-labelledby="current-weather-heading"
+      style={{ '--hero-tint': isDay ? 'var(--hero-day)' : 'var(--hero-night)' }}
+    >
       <header className="current-weather__header">
         <div>
           <p className="current-weather__eyebrow">Current weather</p>

@@ -30,7 +30,7 @@ export function VillageCards() {
       </header>
 
       <div className="block-toolbar">
-        <label className="field" style={{ flex: '1 1 240px', maxWidth: 360 }}>
+        <label className="field block-toolbar__filter">
           <span className="field__label">Filter villages</span>
           <input
             className="field__input"
@@ -54,7 +54,7 @@ export function VillageCards() {
           </button>
         </div>
       ) : (
-        <ul className="card-grid" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+        <ul className="card-grid demo-card-grid">
           {filtered.map((village) => {
             const status = RAIN_STATUS_META[village.status] ?? RAIN_STATUS_META.unknown
             return (

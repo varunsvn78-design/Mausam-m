@@ -108,7 +108,11 @@ export function Attribution() {
         <a href="https://open-meteo.com/" target="_blank" rel="noreferrer noopener">
           Open-Meteo
         </a>{' '}
-        (CC BY 4.0). This is a prototype and is <strong>not</strong> an official India Meteorological Department (IMD)
+        (CC BY 4.0). Map data ©{' '}
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer noopener">
+          OpenStreetMap
+        </a>{' '}
+        contributors. This is a prototype and is <strong>not</strong> an official India Meteorological Department (IMD)
         service. Do not use it for safety-critical decisions.
       </p>
     </footer>

@@ -21,9 +21,12 @@ export function DailyForecast({ weather }) {
   if (!Array.isArray(daily) || daily.length === 0) {
     return (
       <section className="card forecast" aria-labelledby="forecast-heading">
-        <h2 id="forecast-heading" className="section-heading">
-          7-day forecast
-        </h2>
+        <header className="section-head">
+          <p className="section-head__eyebrow">Outlook</p>
+          <h2 id="forecast-heading" className="section-head__title">
+            7-day forecast
+          </h2>
+        </header>
         <p className="muted">Daily forecast is not available for this location right now.</p>
       </section>
     )
@@ -33,9 +36,12 @@ export function DailyForecast({ weather }) {
 
   return (
     <section className="card forecast" aria-labelledby="forecast-heading">
-      <h2 id="forecast-heading" className="section-heading">
-        7-day forecast
-      </h2>
+      <header className="section-head">
+        <p className="section-head__eyebrow">Outlook</p>
+        <h2 id="forecast-heading" className="section-head__title">
+          7-day forecast
+        </h2>
+      </header>
 
       <ul className="forecast-list">
         {daily.map((day) => {

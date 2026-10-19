@@ -41,6 +41,7 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
   const [failureReason, setFailureReason] = useState(null)
   const [clockAt, setClockAt] = useState(() => Date.now())
   const locationEditedRef = useRef(false)
+  const formRef = useRef(null)
 
   useEffect(() => {
     if (!locationEditedRef.current && defaultLocation) setLocation(defaultLocation)
@@ -51,15 +52,15 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
   const showError = (field) => Boolean(errors[field]) && (submitted || touched[field])
   const descriptionOver = description.length > DESCRIPTION_MAX_LENGTH
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    setSubmitted(true)
+  const submitDraft = () => {
     if (!valid) {
+      setSubmitted(true)
       const firstField = errors.location ? 'location' : errors.type ? 'type' : 'description'
-      event.currentTarget.querySelector?.(`[name="${firstField}"]`)?.focus?.()
+      formRef.current?.querySelector(`[name="${firstField}"]`)?.focus()
       return
     }
 
+    setSubmitted(true)
     setPhase('submitting')
     setFailureReason(null)
     window.setTimeout(() => {
@@ -79,6 +80,11 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
     }, 450)
   }
 
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    submitDraft()
+  }
+
   const startNew = () => {
     setPhase('idle')
     setFailureReason(null)
@@ -95,7 +101,13 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
         </p>
       </header>
 
-      <form className="card report-form" onSubmit={handleSubmit} noValidate aria-describedby="report-privacy">
+      <form
+        className="card report-form"
+        ref={formRef}
+        onSubmit={handleSubmit}
+        noValidate
+        aria-describedby="report-privacy"
+      >
         <div className="report-form__grid">
           <div className="field">
             <label className="field__label" htmlFor="report-location">
@@ -250,7 +262,7 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
                 : 'The report could not be saved. Please try again.'}
             </p>
             <div className="report-form__status-actions">
-              <button type="button" className="button button--ghost" onClick={handleSubmit}>
+              <button type="button" className="button button--ghost" onClick={submitDraft}>
                 Retry
               </button>
               <button type="button" className="button button--ghost" onClick={startNew}>
@@ -264,9 +276,7 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
       <div className="community-block">
         <header className="block-toolbar">
           <div>
-            <h4 className="community-block__title" style={{ fontSize: '0.95rem' }}>
-              Reports stored on this device
-            </h4>
+            <h4 className="block-toolbar__title">Reports stored on this device</h4>
             <span className="block-toolbar__count">{reports.length} local demo record(s)</span>
           </div>
           {reports.length > 0 && (

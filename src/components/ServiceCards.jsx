@@ -25,7 +25,7 @@ export function ServiceCards() {
         </p>
       </header>
 
-      <ul className="card-grid" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+      <ul className="card-grid demo-card-grid">
         {DEMO_SERVICES.map((service) => {
           const availability = AVAILABILITY_META[service.availability] ?? AVAILABILITY_META.unknown
           return (

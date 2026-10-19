@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { useWeatherEngine } from './hooks/useWeatherEngine.js'
 import LocationSearch from './components/LocationSearch.jsx'
 import CurrentWeatherCard from './components/CurrentWeatherCard.jsx'
@@ -9,6 +9,7 @@ import EmergencyAlertBanner from './components/EmergencyAlertBanner.jsx'
 import ConnectivityPill from './components/ConnectivityPill.jsx'
 import CommunitySection from './components/CommunitySection.jsx'
 import PwaStatus from './components/PwaStatus.jsx'
+import SectionNav from './components/SectionNav.jsx'
 import {
   Attribution,
   CachedDataBanner,
@@ -46,8 +47,21 @@ export default function App() {
     ? [location.district, location.region, location.country].filter(Boolean).join(', ')
     : ''
 
+  const navSections = useMemo(
+    () => [
+      { id: 'overview', label: 'Overview' },
+      ...(hasWeather ? [{ id: 'plan', label: 'Plan' }] : []),
+      { id: 'community', label: 'Community' },
+    ],
+    [hasWeather],
+  )
+
   return (
     <div className="app">
+      <a className="skip-link" href="#main-content">
+        Skip to weather content
+      </a>
+
       <header className="app__header">
         <div className="app__brand">
           <span className="app__logo" aria-hidden="true">
@@ -62,7 +76,7 @@ export default function App() {
           </span>
           <div>
             <h1 className="app__title">MAUSAM</h1>
-            <p className="app__subtitle">Weather Engine</p>
+            <p className="app__subtitle">Weather intelligence &amp; daily planning</p>
           </div>
           <ConnectivityPill isOnline={isOnline} />
         </div>
@@ -71,6 +85,8 @@ export default function App() {
           <LocationSearch onSelect={selectLocation} inputRef={searchInputRef} />
         </div>
       </header>
+
+      <SectionNav sections={navSections} />
 
       <div className="app__status" aria-live="polite">
         <PwaStatus />
@@ -87,78 +103,97 @@ export default function App() {
         )}
       </div>
 
-      <main className="app__main">
-        {recentLocations.length > 0 && (
-          <RecentLocations
-            locations={recentLocations}
-            onSelect={selectLocation}
-            onClear={clearRecent}
-            activeId={location?.id ?? null}
-          />
-        )}
-
-        {location && (
-          <div className="selected-location">
-            <div>
-              <span className="selected-location__label">
-                {location.source === 'coordinates' ? 'Current location (device GPS)' : 'Selected location'}
-              </span>
-              <span className="selected-location__name">
-                {location.name}
-                {locationMeta ? `, ${locationMeta}` : ''}
-              </span>
-              <span className="selected-location__coords">
-                {Number(location.latitude).toFixed(3)}, {Number(location.longitude).toFixed(3)}
-                {weather?.timezone ? ` · ${weather.timezone}` : ''}
-              </span>
-              {location.source !== 'coordinates' && !location.district && (
-                <span className="selected-location__fallback">
-                  District not reported by Open-Meteo for this place
-                </span>
-              )}
-            </div>
-            <div className="selected-location__actions">
-              {hasWeather && !isLoading && (
-                <button type="button" className="button button--ghost" onClick={retry}>
-                  Refresh
-                </button>
-              )}
-              <button type="button" className="button button--ghost" onClick={clearLocation}>
-                Clear
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showEmpty && <EmptyState onFocusSearch={focusSearch} />}
-
-        {showInitialLoading && <LoadingSkeleton />}
-
-        {showFatalError && (
-          <ErrorState error={error} onRetry={location ? retry : undefined} isOnline={isOnline} />
-        )}
-
-        {hasWeather && (
+      <main className="app__main" id="main-content">
+        {/* ------------------------------------------------------- overview */}
+        <div className="app-section" id="overview">
           <div className="stack">
-            {status === 'error' && (
-              <ErrorState error={error} onRetry={retry} hasCachedData={Boolean(cacheInfo)} isOnline={isOnline} />
+            {recentLocations.length > 0 && (
+              <RecentLocations
+                locations={recentLocations}
+                onSelect={selectLocation}
+                onClear={clearRecent}
+                activeId={location?.id ?? null}
+              />
             )}
-            {isLoading && (
-              <p className="refreshing" role="status">
-                <span className="spinner" aria-hidden="true" /> Refreshing forecast…
-              </p>
+
+            {location && (
+              <div className="selected-location">
+                <div>
+                  <span className="selected-location__label">
+                    {location.source === 'coordinates' ? 'Current location (device GPS)' : 'Selected location'}
+                  </span>
+                  <span className="selected-location__name">
+                    {location.name}
+                    {locationMeta ? `, ${locationMeta}` : ''}
+                  </span>
+                  <span className="selected-location__coords">
+                    {Number(location.latitude).toFixed(3)}, {Number(location.longitude).toFixed(3)}
+                    {weather?.timezone ? ` · ${weather.timezone}` : ''}
+                  </span>
+                  {location.source !== 'coordinates' && !location.district && (
+                    <span className="selected-location__fallback">
+                      District not reported by Open-Meteo for this place
+                    </span>
+                  )}
+                </div>
+                <div className="selected-location__actions">
+                  {hasWeather && !isLoading && (
+                    <button type="button" className="button button--ghost" onClick={retry}>
+                      Refresh
+                    </button>
+                  )}
+                  <button type="button" className="button button--ghost" onClick={clearLocation}>
+                    Clear
+                  </button>
+                </div>
+              </div>
             )}
-            <CurrentWeatherCard weather={weather} />
+
+            {showEmpty && <EmptyState onFocusSearch={focusSearch} />}
+
+            {showInitialLoading && <LoadingSkeleton />}
+
+            {showFatalError && (
+              <ErrorState error={error} onRetry={location ? retry : undefined} isOnline={isOnline} />
+            )}
+
+            {hasWeather && (
+              <div className="stack">
+                {status === 'error' && (
+                  <ErrorState
+                    error={error}
+                    onRetry={retry}
+                    hasCachedData={Boolean(cacheInfo)}
+                    isOnline={isOnline}
+                  />
+                )}
+                {isLoading && (
+                  <p className="refreshing" role="status">
+                    <span className="spinner" aria-hidden="true" /> Refreshing forecast…
+                  </p>
+                )}
+                <CurrentWeatherCard weather={weather} />
+                <DailyForecast weather={weather} />
+                <p className="data-timestamp">
+                  Data fetched {weather.fetchedAt ? new Date(weather.fetchedAt).toLocaleString() : ''} · Source:{' '}
+                  {weather.source?.name ?? 'Open-Meteo'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ----------------------------------------------------------- plan */}
+        {hasWeather && (
+          <div className="app-section" id="plan">
             <AdaptiveExperience weather={weather} />
-            <DailyForecast weather={weather} />
-            <p className="data-timestamp">
-              Data fetched {weather.fetchedAt ? new Date(weather.fetchedAt).toLocaleString() : ''} · Source:{' '}
-              {weather.source?.name ?? 'Open-Meteo'}
-            </p>
           </div>
         )}
 
-        <CommunitySection location={location} />
+        {/* ----------------------------------------------------- community */}
+        <div className="app-section" id="community">
+          <CommunitySection location={location} />
+        </div>
       </main>
 
       <Attribution />

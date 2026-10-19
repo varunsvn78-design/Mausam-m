@@ -72,15 +72,31 @@ function buildLegendHtml() {
  * - Resizes with its container (ResizeObserver → invalidateSize) and on
  *   window resize (Leaflet handles window resize itself).
  *
- * @param {{ location?: object|null }} props selected Member 1 location
+ * @param {{ location?: object|null, isActive?: boolean }} props selected Member 1
+ *        location; `isActive` re-syncs Leaflet's size when the parent tab is
+ *        (re)shown after being hidden.
  */
-export function CommunityMap({ location }) {
+export function CommunityMap({ location, isActive = true }) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const youMarkerRef = useRef(null)
   const [status, setStatus] = useState('loading') // loading | ready | error
   const [attempt, setAttempt] = useState(0)
   const isOnline = useOnlineStatus()
+
+  // Leaflet mis-measures a container that was display:none (hidden tab);
+  // re-validate the size whenever the tab becomes visible again.
+  useEffect(() => {
+    if (!isActive || !mapRef.current) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      try {
+        mapRef.current?.invalidateSize()
+      } catch {
+        /* map already torn down */
+      }
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [isActive])
 
   useEffect(() => {
     const container = containerRef.current

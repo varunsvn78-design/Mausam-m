@@ -7,9 +7,9 @@
 }
 
 .app__header {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  background: linear-gradient(135deg, var(--header-from), var(--header-to));
   color: var(--color-primary-contrast);
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-5);
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
@@ -21,6 +21,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .app__logo {
@@ -31,19 +32,72 @@
 }
 
 .app__title {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   letter-spacing: 0.08em;
   line-height: 1.1;
 }
 
 .app__subtitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   opacity: 0.9;
 }
 
 .app__search {
   flex: 1 1 320px;
   max-width: 480px;
+}
+
+/* ---------------------------------------------------------- section nav */
+
+.section-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-nav__list {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  max-width: var(--max-width);
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.section-nav__list::-webkit-scrollbar {
+  display: none;
+}
+
+.section-nav__link {
+  display: inline-block;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.section-nav__link:hover {
+  color: var(--color-text);
+}
+
+.section-nav__link.is-active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-nav__link {
+    transition: none;
+  }
 }
 
 .app__status {
@@ -284,26 +338,30 @@
   gap: var(--space-3);
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 .selected-location__label {
   display: block;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .selected-location__name {
   display: block;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
 
 .selected-location__coords {
   display: block;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -315,7 +373,7 @@
 
 .selected-location__fallback {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--color-text-muted);
   font-style: italic;
 }
@@ -393,6 +451,12 @@
 
 /* --------------------------------------------------------- current weather */
 
+.current-weather {
+  background:
+    linear-gradient(180deg, var(--hero-tint, transparent), transparent 42%),
+    var(--color-surface);
+}
+
 .current-weather__header {
   display: flex;
   flex-wrap: wrap;
@@ -403,6 +467,7 @@
 
 .current-weather__eyebrow {
   font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--color-text-muted);
@@ -445,6 +510,7 @@
 
 .metric {
   background: var(--color-surface-alt);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
 }
@@ -482,6 +548,10 @@
 }
 
 /* --------------------------------------------------------------- forecast */
+
+.forecast .section-head {
+  margin-bottom: var(--space-4);
+}
 
 .forecast-list {
   list-style: none;
