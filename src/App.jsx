@@ -5,6 +5,10 @@ import CurrentWeatherCard from './components/CurrentWeatherCard.jsx'
 import AdaptiveExperience from './components/AdaptiveExperience.jsx'
 import DailyForecast from './components/DailyForecast.jsx'
 import RecentLocations from './components/RecentLocations.jsx'
+import EmergencyAlertBanner from './components/EmergencyAlertBanner.jsx'
+import ConnectivityPill from './components/ConnectivityPill.jsx'
+import CommunitySection from './components/CommunitySection.jsx'
+import PwaStatus from './components/PwaStatus.jsx'
 import {
   Attribution,
   CachedDataBanner,
@@ -14,6 +18,7 @@ import {
   OfflineBanner,
 } from './components/WeatherStates.jsx'
 import './App.css'
+import './community.css'
 
 export default function App() {
   const searchInputRef = useRef(null)
@@ -59,6 +64,7 @@ export default function App() {
             <h1 className="app__title">MAUSAM</h1>
             <p className="app__subtitle">Weather Engine</p>
           </div>
+          <ConnectivityPill isOnline={isOnline} />
         </div>
 
         <div className="app__search">
@@ -67,6 +73,8 @@ export default function App() {
       </header>
 
       <div className="app__status" aria-live="polite">
+        <PwaStatus />
+        <EmergencyAlertBanner />
         {!isOnline && <OfflineBanner />}
         {cacheInfo && (
           <CachedDataBanner
@@ -149,6 +157,8 @@ export default function App() {
             </p>
           </div>
         )}
+
+        <CommunitySection location={location} />
       </main>
 
       <Attribution />

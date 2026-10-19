@@ -358,6 +358,7 @@ export const TIMELINE_COPY = Object.freeze({
   today: { en: 'Today', hi: 'आज' },
   tomorrow: { en: 'Tomorrow', hi: 'कल' },
   nowButton: { en: 'Jump to now', hi: 'अभी पर जाएँ' },
+  now: { en: 'Now', hi: 'अभी' },
   selectedHour: { en: 'Selected hour', hi: 'चुना गया घंटा' },
   timeLabel: { en: (time) => `${time} hours`, hi: (time) => `${time} बजे` },
   past: { en: 'Past', hi: 'बीता' },

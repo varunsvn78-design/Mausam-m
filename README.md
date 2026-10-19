@@ -20,7 +20,7 @@ public [Open-Meteo](https://open-meteo.com/) APIs.
 | --- | --- | --- |
 | Weather Engine | Member 1 | implemented — see [`docs/weather-engine.md`](docs/weather-engine.md) |
 | Adaptive experience | Member 2 | implemented — see [`docs/adaptive-experience.md`](docs/adaptive-experience.md) |
-| Community, maps, PWA | Member 3 | pending |
+| Community, maps, PWA | Member 3 | implemented — see [`docs/community-maps-pwa.md`](docs/community-maps-pwa.md) |
 
 ## Weather Engine (Member 1)
 
@@ -56,5 +56,27 @@ recommendation logic is owned by Member 2.
   and `src/config/adaptiveCopy.js`; pure logic is in `src/services/` (see
   [`docs/adaptive-experience.md`](docs/adaptive-experience.md)).
 
-Weather data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0). This is a
-prototype and is **not** an official IMD service.
+## Community, Maps & PWA (Member 3)
+
+- Interactive Leaflet map with OpenStreetMap tiles: clearly-labelled
+  demonstration markers for six cities, a "your location" marker from the
+  selected weather location, legend, loading/error/retry and offline states.
+- Simulated village records and unified-service availability cards, each
+  labelled as demo/sample data (filter + empty state included).
+- Device-local rain-check reporting form: validation, inline errors,
+  success/failure/retry states; reports are stored **only** in this browser's
+  `localStorage` (capped at 20) and are never uploaded.
+- Dismissible demo emergency-alert banner — never presented as an official
+  warning.
+- Online/offline connectivity pill in the header.
+- Installable PWA via `vite-plugin-pwa`: app-shell precache, OSM tile
+  runtime cache (Open-Meteo responses are deliberately not SW-cached —
+  offline weather remains Member 1's labelled local cache), offline-ready
+  notice and an explicit update-prompt (no silent swaps).
+
+All community content is clearly-labelled demonstration data or device-local
+records; see [`docs/community-maps-pwa.md`](docs/community-maps-pwa.md).
+
+Weather data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0). Map data
+© [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. This
+is a prototype and is **not** an official IMD service.
