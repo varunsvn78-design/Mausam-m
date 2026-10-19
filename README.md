@@ -9,6 +9,7 @@ npm run dev      # start the Vite dev server (http://localhost:5173)
 npm run build    # production build into dist/
 npm run preview  # preview the production build
 npm run lint     # ESLint
+npm test         # Vitest (pure service-layer tests)
 ```
 
 No API key or environment variable is required. Weather data comes from the
@@ -21,6 +22,7 @@ public [Open-Meteo](https://open-meteo.com/) APIs.
 | Weather Engine | Member 1 | implemented — see [`docs/weather-engine.md`](docs/weather-engine.md) |
 | Adaptive experience | Member 2 | implemented — see [`docs/adaptive-experience.md`](docs/adaptive-experience.md) |
 | Community, maps, PWA | Member 3 | implemented — see [`docs/community-maps-pwa.md`](docs/community-maps-pwa.md) |
+| Insights (air, farm, feel) | Member 4 | implemented — see [`docs/insights-modules.md`](docs/insights-modules.md) |
 
 ## Weather Engine (Member 1)
 
@@ -76,6 +78,27 @@ recommendation logic is owned by Member 2.
 
 All community content is clearly-labelled demonstration data or device-local
 records; see [`docs/community-maps-pwa.md`](docs/community-maps-pwa.md).
+
+## Insights — air, farm & feel (Member 4)
+
+- **Air Quality & Outdoor Activity Advisor**: current US AQI
+  (Open-Meteo Air Quality / CAMS) with band, summary, sensitive-group
+  precautions and PM2.5/PM10, plus an hour-by-hour comparison of air quality
+  **and** weather to surface genuinely better outdoor windows for the day.
+- **Farmer's Rain Planner**: per-day rain totals (sum of forecast hourly
+  precipitation) with planning windows for irrigation, sowing/transplanting
+  and harvest/threshing — each verdict explained by the forecast facts behind
+  it, and a permanent scope disclaimer.
+- **Weather-Feel Intelligence**: describes how the hour selected on Member 2's
+  scrubber is likely to feel, choosing the heat index, the model's apparent
+  temperature or air temperature, and always labelling the value as an
+  estimate.
+- All three live behind accessible tabs in a new "Insights" section; every
+  number is forecast-derived (never fabricated), and guidance is explicitly
+  **not** an official warning, medical advice or agronomic advice.
+- Thresholds and copy are in `src/config/airQuality.js`,
+  `src/config/weatherFeel.js` and `src/config/farmerPlanner.js`; pure logic is
+  tested with Vitest — see [`docs/insights-modules.md`](docs/insights-modules.md).
 
 Weather data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0). Map data
 © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. This

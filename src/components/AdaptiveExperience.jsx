@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ChronoTimeline from './ChronoTimeline.jsx'
 import HeatStressCard from './HeatStressCard.jsx'
 import ActivityCards from './ActivityCards.jsx'
@@ -29,9 +29,9 @@ function loadStoredLanguage() {
  * data. All heavy lifting happens in pure services (`src/services/*`); this
  * component only holds selection + language state and passes props.
  *
- * @param {{ weather: object|null }} props NormalizedWeather from useWeatherEngine()
+ * @param {{ weather: object|null, onSelectionChange?: (value: { selection: { date: string, hour: number }, point: object }|null) => void }} props NormalizedWeather from useWeatherEngine()
  */
-export function AdaptiveExperience({ weather }) {
+export function AdaptiveExperience({ weather, onSelectionChange }) {
   const [language, setLanguage] = useState(loadStoredLanguage)
 
   const changeLanguage = (id) => {
@@ -86,6 +86,13 @@ export function AdaptiveExperience({ weather }) {
       }),
     [weather, selection, selectedPoint, evaluations, heatIndex, language],
   )
+
+  // Mirror the scrubbed hour upward so sibling modules (Member 4's Weather
+  // Feel) can describe the same hour. Optional and backward-compatible.
+  useEffect(() => {
+    if (typeof onSelectionChange !== 'function') return
+    onSelectionChange(weather ? { selection, point: selectedPoint } : null)
+  }, [onSelectionChange, weather, selection, selectedPoint])
 
   if (!weather) return null
 

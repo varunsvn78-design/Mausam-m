@@ -1,9 +1,11 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useWeatherEngine } from './hooks/useWeatherEngine.js'
+import { useAirQuality } from './hooks/useAirQuality.js'
 import LocationSearch from './components/LocationSearch.jsx'
 import CurrentWeatherCard from './components/CurrentWeatherCard.jsx'
 import AdaptiveExperience from './components/AdaptiveExperience.jsx'
 import DailyForecast from './components/DailyForecast.jsx'
+import InsightsSection from './components/InsightsSection.jsx'
 import RecentLocations from './components/RecentLocations.jsx'
 import EmergencyAlertBanner from './components/EmergencyAlertBanner.jsx'
 import ConnectivityPill from './components/ConnectivityPill.jsx'
@@ -23,6 +25,7 @@ import './community.css'
 
 export default function App() {
   const searchInputRef = useRef(null)
+  const [chronoSelection, setChronoSelection] = useState(null)
   const {
     isOnline,
     location,
@@ -38,6 +41,13 @@ export default function App() {
     retry,
   } = useWeatherEngine()
 
+  const {
+    airQuality,
+    status: airQualityStatus,
+    error: airQualityError,
+    retry: retryAirQuality,
+  } = useAirQuality(location, { isOnline })
+
   const focusSearch = () => searchInputRef.current?.focus()
   const hasWeather = Boolean(weather)
   const showInitialLoading = isLoading && !hasWeather
@@ -51,6 +61,7 @@ export default function App() {
     () => [
       { id: 'overview', label: 'Overview' },
       ...(hasWeather ? [{ id: 'plan', label: 'Plan' }] : []),
+      ...(hasWeather ? [{ id: 'insights', label: 'Insights' }] : []),
       { id: 'community', label: 'Community' },
     ],
     [hasWeather],
@@ -186,7 +197,22 @@ export default function App() {
         {/* ----------------------------------------------------------- plan */}
         {hasWeather && (
           <div className="app-section" id="plan">
-            <AdaptiveExperience weather={weather} />
+            <AdaptiveExperience weather={weather} onSelectionChange={setChronoSelection} />
+          </div>
+        )}
+
+        {/* ------------------------------------------------------- insights */}
+        {hasWeather && (
+          <div className="app-section" id="insights">
+            <InsightsSection
+              weather={weather}
+              airQuality={airQuality}
+              airQualityStatus={airQualityStatus}
+              airQualityError={airQualityError}
+              onRetryAirQuality={retryAirQuality}
+              selectedPoint={chronoSelection?.point ?? null}
+              selection={chronoSelection?.selection ?? null}
+            />
           </div>
         )}
 

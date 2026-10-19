@@ -1,0 +1,520 @@
+/* Member 4 — Insights (Air & outdoors / Farm planner / Weather feel).
+   Uses only shared tokens from src/index.css. */
+
+/* ----------------------------------------------------------- section shell */
+
+.insights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.insights-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.insight-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.insight-card__title {
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+/* --------------------------------------------------------------- tabs */
+
+.insights-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: 4px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.insights-tabs__tab {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.insights-tabs__tab:hover {
+  color: var(--color-text);
+}
+
+.insights-tabs__tab.is-active {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  padding: 6px 15px;
+}
+
+.insights-tabs__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.insights-tabs__panel[hidden] {
+  display: none;
+}
+
+.insights-tabs__panel:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+/* ------------------------------------------------------- shared accents */
+
+/* --accent is set per risk / verdict; components only read it. */
+[data-risk='good'],
+[data-verdict='recommended'] {
+  --accent: var(--color-success);
+}
+
+[data-risk='moderate'],
+[data-verdict='caution'] {
+  --accent: var(--color-warning-border);
+}
+
+[data-risk='sensitive'] {
+  --accent: var(--viz-future-to);
+}
+
+[data-risk='bad'],
+[data-verdict='not-recommended'] {
+  --accent: var(--color-danger);
+}
+
+[data-risk='unknown'],
+[data-verdict='unknown'] {
+  --accent: var(--color-text-muted);
+}
+
+/* --------------------------------------------------- air quality: current */
+
+.aq-current {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.aq-current__value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--accent, var(--color-border-strong));
+}
+
+.aq-current__number {
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent, var(--color-text));
+}
+
+.aq-current__scale {
+  margin-top: var(--space-1);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.aq-current__meta {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.aq-current__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--accent, var(--color-text));
+}
+
+.aq-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent, var(--color-text-muted));
+  flex-shrink: 0;
+}
+
+.aq-current__summary {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.aq-current__time {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.aq-advice {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  border-left: 3px solid var(--color-primary);
+  font-size: 0.92rem;
+}
+
+.aq-precautions__title,
+.feel__reasons-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.aq-precautions ul,
+.feel__reasons ul,
+.farm-op__reasons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.aq-precautions li,
+.feel__reasons li {
+  position: relative;
+  padding-left: var(--space-4);
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
+.aq-precautions li::before,
+.feel__reasons li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-border-strong);
+}
+
+/* ------------------------------------------------- air quality: windows */
+
+.aq-windows__best {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.aq-strip {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 3px;
+}
+
+.aq-strip__hour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.aq-strip__bar {
+  width: 100%;
+  min-height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--accent, var(--color-border));
+  opacity: 0.85;
+}
+
+.aq-strip__hour[data-verdict='unknown'] .aq-strip__bar {
+  opacity: 0.35;
+}
+
+.aq-strip__time {
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.aq-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.aq-legend__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.aq-legend__swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--accent, var(--color-border));
+}
+
+/* ---------------------------------------------------------- farm planner */
+
+.farm-summary {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+.farm-days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.farm-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.farm-day__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.farm-day__date {
+  font-size: 1rem;
+}
+
+.farm-day__condition {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.farm-day__totals {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.farm-day__rain {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.farm-day__misc,
+.farm-day__partial {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.farm-day__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.farm-day__bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--viz-rain-strong);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.farm-ops {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.farm-op {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--accent, var(--color-border-strong));
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.farm-op__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.farm-op__label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.farm-op__verdict {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent, var(--color-text-muted));
+  white-space: nowrap;
+}
+
+.farm-op__reasons {
+  margin-top: var(--space-2);
+  gap: 4px;
+}
+
+.farm-op__reasons li {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.farm-disclaimer {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  color: var(--color-warning-text);
+  font-size: 0.82rem;
+}
+
+/* --------------------------------------------------------- weather feel */
+
+.feel__head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feel__when {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.feel__body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.feel__value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--color-primary);
+}
+
+.feel__number {
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.feel__unit {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.feel__text {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.feel__label {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.feel__detail {
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.feel__source {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.feel__estimate {
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 640px) {
+  .aq-strip {
+    grid-template-columns: repeat(12, 1fr);
+    row-gap: var(--space-2);
+  }
+
+  .aq-strip__time {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .insights-tabs__list {
+    width: 100%;
+  }
+
+  .insights-tabs__tab {
+    flex: 1;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .insights-tabs__tab,
+  .farm-day__bar-fill {
+    transition: none;
+  }
+}
