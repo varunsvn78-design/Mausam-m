@@ -79,11 +79,15 @@ export function useGeolocation() {
     return new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          if (!mountedRef.current) return
           const next = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             accuracy: Number.isFinite(position.coords.accuracy) ? position.coords.accuracy : null,
+          }
+          // Always settle the promise, even after unmount, so callers never hang.
+          if (!mountedRef.current) {
+            resolve(next)
+            return
           }
           setCoords(next)
           setError(null)
@@ -91,8 +95,11 @@ export function useGeolocation() {
           resolve(next)
         },
         (geoError) => {
-          if (!mountedRef.current) return
           const normalised = toGeolocationError(geoError)
+          if (!mountedRef.current) {
+            reject(normalised)
+            return
+          }
           setCoords(null)
           setError(normalised)
           setStatus(normalised.kind)

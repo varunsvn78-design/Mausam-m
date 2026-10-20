@@ -45,6 +45,8 @@ export default function App() {
     airQuality,
     status: airQualityStatus,
     error: airQualityError,
+    savedAt: airQualitySavedAt,
+    refreshFailed: airQualityRefreshFailed,
     retry: retryAirQuality,
   } = useAirQuality(location, { isOnline })
 
@@ -212,6 +214,8 @@ export default function App() {
               airQuality={airQuality}
               airQualityStatus={airQualityStatus}
               airQualityError={airQualityError}
+              airQualitySavedAt={airQualitySavedAt}
+              airQualityRefreshFailed={airQualityRefreshFailed}
               onRetryAirQuality={retryAirQuality}
               selectedPoint={chronoSelection?.point ?? null}
               selection={chronoSelection?.selection ?? null}
@@ -221,7 +225,7 @@ export default function App() {
 
         {/* ----------------------------------------------------- community */}
         <div className="app-section" id="community">
-          <CommunitySection location={location} />
+          <CommunitySection location={location} isOnline={isOnline} />
         </div>
       </main>
 

@@ -95,7 +95,10 @@ export function evaluateExerciseHour(facts = {}) {
   const hasRainProbability = typeof facts.rainProbability === 'number' && Number.isFinite(facts.rainProbability)
   const hasWind = typeof facts.windSpeed === 'number' && Number.isFinite(facts.windSpeed)
   const hasCondition = typeof facts.conditionGroup === 'string' && facts.conditionGroup.length > 0
-  const weatherComplete = hasRainProbability || hasWind || hasCondition
+  // A trustworthy outdoor verdict needs all three weather inputs. If any is
+  // missing we must not present "recommended" for that hour; we downgrade to
+  // caution with an explicit "weather data incomplete" reason.
+  const weatherComplete = hasRainProbability && hasWind && hasCondition
 
   // --- hard blockers (weather first: a thunderstorm is bad regardless of AQ) --
   if (hasCondition && facts.conditionGroup === 'thunderstorm') reasons.push(reason('thunderstorm'))

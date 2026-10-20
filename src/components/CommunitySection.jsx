@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useRainReports } from '../hooks/useRainReports.js'
 import CommunityMap from './CommunityMap.jsx'
 import VillageCards from './VillageCards.jsx'
@@ -22,8 +22,17 @@ const TABS = [
  *
  * @param {{ location?: object|null }} props selected Member 1 location (for prefill + map marker)
  */
-export function CommunitySection({ location }) {
-  const { reports, submit, clear, clearFailed } = useRainReports()
+export function CommunitySection({ location, isOnline = true }) {
+  const {
+    reports,
+    sharedReports,
+    submit,
+    clear,
+    clearFailed,
+    loadShared,
+    apiAvailable,
+    storageMode,
+  } = useRainReports({ isOnline })
   const [activeTab, setActiveTab] = useState('map')
   const tablistId = useId()
   const tabRefs = useRef([])
@@ -33,6 +42,20 @@ export function CommunitySection({ location }) {
     const meta = [location.district, location.region].filter(Boolean).join(', ')
     return meta ? `${location.name}, ${meta}` : location.name
   }, [location])
+
+  const defaultCoordinates = useMemo(() => {
+    if (!location) return null
+    const latitude = Number(location.latitude)
+    const longitude = Number(location.longitude)
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null
+    return { latitude, longitude }
+  }, [location])
+
+  // Pull shared reports from the backend whenever the map or report tab opens.
+  useEffect(() => {
+    if (activeTab === 'map' || activeTab === 'reports') loadShared()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
 
   const onTabKeyDown = (event, index) => {
     let next = null
@@ -54,9 +77,9 @@ export function CommunitySection({ location }) {
           Rain reports, demo map &amp; services
         </h2>
         <p className="community__intro">
-          This section demonstrates community reporting, mapping and service cards for the prototype. All markers,
-          village records and service statuses here are <strong>clearly-labelled demonstration data</strong>, and
-          reports stay on this device.
+          This section demonstrates community reporting, mapping and service cards for the prototype. Map markers,
+          village records and service statuses are <strong>clearly-labelled demonstration data</strong>. Rain reports
+          you submit are user-generated and {apiAvailable ? 'shared with the community server (unverified)' : 'kept on this device (no server connected)'}.
         </p>
       </header>
 
@@ -91,7 +114,14 @@ export function CommunitySection({ location }) {
           tabIndex={0}
           className="community-tabs__panel"
         >
-          <CommunityMap location={location} isActive={activeTab === 'map'} />
+          <CommunityMap
+            location={location}
+            isActive={activeTab === 'map'}
+            reports={sharedReports}
+            onRefresh={loadShared}
+            apiAvailable={apiAvailable}
+            storageMode={storageMode}
+          />
         </div>
 
         <div
@@ -116,10 +146,13 @@ export function CommunitySection({ location }) {
         >
           <RainReportForm
             defaultLocation={defaultLocation}
+            defaultCoordinates={defaultCoordinates}
             reports={reports}
             onSubmit={submit}
             onClear={clear}
             clearFailed={clearFailed}
+            apiAvailable={apiAvailable}
+            storageMode={storageMode}
           />
         </div>
       </div>

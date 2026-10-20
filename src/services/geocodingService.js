@@ -157,7 +157,7 @@ export async function searchLocations(query, { signal, language = 'en', count = 
     format: 'json',
   })
 
-  const payload = await fetchJson(url, { signal })
+  const payload = await fetchJson(url, { signal, serviceName: 'location search service' })
 
   // The API omits `results` entirely when nothing matches.
   const rawResults = Array.isArray(payload?.results) ? payload.results : []

@@ -49,12 +49,15 @@ function resolveFeelsLike({ temperature, relativeHumidity, apparentTemperature }
   if (isFiniteNumber(temperature)) {
     const heatIndex = computeHeatIndex({ temperature, relativeHumidity })
     if (heatIndex.status === 'ok') {
-      reasons.push(reason('heatIndexUsed'))
       if (isFiniteNumber(apparentTemperature) && apparentTemperature > heatIndex.valueC) {
         // The model's apparent temperature accounts for wind too; only prefer
-        // it when it reports a stronger effect than humidity alone.
+        // it when it reports a stronger effect than humidity alone. Report the
+        // reason that actually matches the chosen source, so the "Why" list
+        // never contradicts the provenance label.
+        reasons.push(reason('apparentUsed'))
         return { valueC: apparentTemperature, source: 'apparent-temperature', reasons }
       }
+      reasons.push(reason('heatIndexUsed'))
       return { valueC: heatIndex.valueC, source: 'heat-index', reasons }
     }
     if (heatIndex.reasonKey && heatIndex.reasonKey !== 'missingTemperature' && heatIndex.reasonKey !== 'missingHumidity') {

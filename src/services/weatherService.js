@@ -287,6 +287,10 @@ export function normalizeForecast(raw, location) {
     hourly,
     daily,
     fetchedAt: new Date().toISOString(),
+    // Truthful provenance: Open-Meteo's `current` block is a model-based
+    // estimate interpolated to this cell, NOT a physical station observation.
+    // The UI must label it as such and never call it an observation.
+    dataType: 'model-estimate',
     source: { ...FORECAST_SOURCE },
   }
 }
@@ -308,6 +312,6 @@ export async function fetchWeather(location, { signal, forecastDays = DEFAULT_FO
     forecastDays,
   })
 
-  const raw = await fetchJson(url, { signal })
+  const raw = await fetchJson(url, { signal, serviceName: 'weather service' })
   return normalizeForecast(raw, location)
 }

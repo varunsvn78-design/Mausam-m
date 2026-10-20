@@ -1,4 +1,5 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { useInstallPrompt } from '../hooks/useInstallPrompt.js'
 
 const OFFLINE_READY_KEY = 'mausam.pwa.offlineReadyDismissed.v1'
 
@@ -24,10 +25,13 @@ function dismissOfflineReady() {
  * Uses vite-plugin-pwa's single managed worker (`virtual:pwa-register/react`):
  * - "offline ready" notice once the app shell is cached (dismissable),
  * - "update available" prompt (registerType: 'prompt') with an explicit
- *   Reload action — updates are never silently swapped mid-session.
+ *   Reload action — updates are never silently swapped mid-session,
+ * - an opt-in "install app" prompt driven by the browser's real
+ *   `beforeinstallprompt` event (see useInstallPrompt) — shown only when the
+ *   app is genuinely installable.
  *
- * Banners render in production builds only; development never registers a
- * service worker (vite-plugin-pwa devOptions are disabled).
+ * Update/offline banners render in production builds only; development never
+ * registers a service worker (vite-plugin-pwa devOptions are disabled).
  */
 export function PwaStatus() {
   const {
@@ -40,8 +44,40 @@ export function PwaStatus() {
       if (alreadyDismissedOfflineReady()) setOfflineReady(false)
     },
   })
+  const { canInstall, promptInstall, dismissInstall } = useInstallPrompt()
 
   if (!import.meta.env.PROD) return null
+
+  if (canInstall && !needRefresh) {
+    return (
+      <div className="pwa-banner pwa-banner--install" role="status" aria-live="polite">
+        <span className="badge badge--primary">Install app</span>
+        <span className="pwa-banner__text">
+          Add MAUSAM to your device for quick access and offline app-shell loading. Live weather still needs a
+          connection.
+        </span>
+        <span className="pwa-banner__actions">
+          <button
+            type="button"
+            className="button button--primary"
+            onClick={promptInstall}
+            aria-label="Install the MAUSAM app on this device"
+          >
+            Install
+          </button>
+          <button
+            type="button"
+            className="button button--ghost"
+            onClick={dismissInstall}
+            aria-label="Dismiss install suggestion"
+          >
+            Not now
+          </button>
+        </span>
+      </div>
+    )
+  }
+
   if (!offlineReady && !needRefresh) return null
 
   if (needRefresh) {

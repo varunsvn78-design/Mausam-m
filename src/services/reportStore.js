@@ -56,19 +56,32 @@ export function validateReport(draft) {
   return { valid: Object.keys(errors).length === 0, errors }
 }
 
-/** Build a normalized report record from a valid draft (never called with invalid input by the form). */
+/** Build a normalized local report record from a valid draft (never called with invalid input by the form). */
 export function createReport(draft, { now = Date.now(), id = null } = {}) {
   const observation = OBSERVATION_TYPES.find((type) => type.id === draft.type)
+  const latitude = toFiniteOrNull(draft.latitude)
+  const longitude = toFiniteOrNull(draft.longitude)
   return {
     id: id ?? `report-${now}-${Math.random().toString(36).slice(2, 8)}`,
     location: draft.location.trim(),
     type: draft.type,
     typeLabel: observation?.label ?? draft.type,
     description: (draft.description ?? '').trim(),
+    latitude,
+    longitude,
     observedAt: new Date(now).toISOString(),
+    submittedAt: new Date(now).toISOString(),
+    source: 'local-device',
+    verificationStatus: 'unverified',
     storedLocally: true,
     demo: true,
   }
+}
+
+function toFiniteOrNull(value) {
+  if (value === null || value === undefined || value === '') return null
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
 }
 
 /** Read stored reports (newest first). Never throws. */

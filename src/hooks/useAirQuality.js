@@ -65,6 +65,10 @@ export function useAirQuality(location, { isOnline = true } = {}) {
   const [airQuality, setAirQuality] = useState(null)
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState(null)
+  // True when we are showing data but the most recent refresh attempt failed,
+  // so the UI can disclose that the displayed reading may be out of date.
+  const [refreshFailed, setRefreshFailed] = useState(false)
+  const [savedAt, setSavedAt] = useState(null)
 
   const abortRef = useRef(null)
   const requestIdRef = useRef(0)
@@ -86,6 +90,8 @@ export function useAirQuality(location, { isOnline = true } = {}) {
       const data = await fetchAirQuality(target, { signal: controller.signal })
       if (requestId !== requestIdRef.current) return
       setAirQuality(data)
+      setSavedAt(data.fetchedAt ?? new Date().toISOString())
+      setRefreshFailed(false)
       setStatus('ready')
       writeCache(target, data)
     } catch (err) {
@@ -95,9 +101,17 @@ export function useAirQuality(location, { isOnline = true } = {}) {
         const cached = readCache(target)
         if (cached) {
           setAirQuality(cached.data)
+          setSavedAt(cached.savedAt)
+          setRefreshFailed(true)
           setStatus('ready')
           return
         }
+      } else {
+        // We already had data; keep showing it but flag the failed refresh so
+        // the component can warn instead of silently pretending it is current.
+        setRefreshFailed(true)
+        setStatus('ready')
+        return
       }
       setStatus('error')
     }
@@ -116,9 +130,13 @@ export function useAirQuality(location, { isOnline = true } = {}) {
     const cached = readCache(location)
     if (cached) {
       setAirQuality(cached.data)
+      setSavedAt(cached.savedAt)
+      setRefreshFailed(false)
       setStatus('ready')
     } else {
       setAirQuality(null)
+      setSavedAt(null)
+      setRefreshFailed(false)
       setStatus(isOnline ? 'loading' : 'error')
       if (!isOnline) setError(null)
     }
@@ -136,6 +154,8 @@ export function useAirQuality(location, { isOnline = true } = {}) {
     airQuality,
     status,
     error,
+    savedAt,
+    refreshFailed,
     isLoading: status === 'loading',
     retry,
   }

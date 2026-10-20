@@ -37,6 +37,8 @@ export function InsightsSection({
   airQuality,
   airQualityStatus,
   airQualityError,
+  airQualitySavedAt = null,
+  airQualityRefreshFailed = false,
   onRetryAirQuality,
   selectedPoint,
   selection,
@@ -107,6 +109,8 @@ export function InsightsSection({
             weather={weather}
             status={airQualityStatus}
             error={airQualityError}
+            savedAt={airQualitySavedAt}
+            refreshFailed={airQualityRefreshFailed}
             onRetry={onRetryAirQuality}
           />
         </div>

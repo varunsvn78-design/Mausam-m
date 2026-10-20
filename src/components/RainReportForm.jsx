@@ -18,20 +18,33 @@ function formatDeviceTime(timestamp) {
 /**
  * Rain-check reporting form (Member 3).
  *
- * Honest-by-design: reports are stored in THIS BROWSER ONLY (localStorage).
- * There is no backend and no authority integration — the form, success
- * message and stored-record list all say so. Covers idle, inline-error,
- * submitting, success and failure states.
+ * Honest-by-design: when the community server is reachable reports are sent
+ * there and marked unverified; otherwise they are stored in THIS BROWSER ONLY
+ * (localStorage) and clearly labelled as device-local. There is no authority
+ * or emergency-service integration. Covers idle, inline-error, submitting,
+ * success and failure states.
  *
  * @param {{
  *   defaultLocation?: string,
+ *   defaultCoordinates?: { latitude:number, longitude:number }|null,
  *   reports: Array<object>,
- *   onSubmit: (draft: object) => { ok: boolean, error?: string, errors?: Record<string,string> },
+ *   onSubmit: (draft: object, coordinates: object|null) => Promise<object>|object,
  *   onClear: () => boolean,
  *   clearFailed: boolean,
+ *   apiAvailable?: boolean,
+ *   storageMode?: string|null,
  * }} props
  */
-export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClear, clearFailed }) {
+export function RainReportForm({
+  defaultLocation = '',
+  defaultCoordinates = null,
+  reports,
+  onSubmit,
+  onClear,
+  clearFailed,
+  apiAvailable = false,
+  storageMode = null,
+}) {
   const [location, setLocation] = useState(defaultLocation)
   const [type, setType] = useState('')
   const [description, setDescription] = useState('')
@@ -39,10 +52,14 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
   const [touched, setTouched] = useState({})
   const [phase, setPhase] = useState('idle') // idle | submitting | success | failure
   const [savedAt, setSavedAt] = useState(null)
+  const [savedMode, setSavedMode] = useState(null) // 'shared' | 'local'
+  const [savedStorage, setSavedStorage] = useState(null)
+  const [wasDuplicate, setWasDuplicate] = useState(false)
   const [failureReason, setFailureReason] = useState(null)
   const [clockAt, setClockAt] = useState(() => Date.now())
   const locationEditedRef = useRef(false)
   const formRef = useRef(null)
+  const submittingRef = useRef(false)
 
   useEffect(() => {
     if (!locationEditedRef.current && defaultLocation) setLocation(defaultLocation)
@@ -53,7 +70,9 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
   const showError = (field) => Boolean(errors[field]) && (submitted || touched[field])
   const descriptionOver = description.length > DESCRIPTION_MAX_LENGTH
 
-  const submitDraft = () => {
+  const submitDraft = async () => {
+    // Guard against double submits (button + Enter, or rapid taps).
+    if (submittingRef.current) return
     if (!valid) {
       setSubmitted(true)
       const firstField = errors.location ? 'location' : errors.type ? 'type' : 'description'
@@ -61,24 +80,41 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
       return
     }
 
+    submittingRef.current = true
     setSubmitted(true)
     setPhase('submitting')
     setFailureReason(null)
-    window.setTimeout(() => {
-      const result = onSubmit({ location, type, description })
-      if (result.ok) {
+
+    try {
+      const coordinates =
+        defaultCoordinates && !locationEditedRef.current
+          ? { latitude: defaultCoordinates.latitude, longitude: defaultCoordinates.longitude }
+          : null
+
+      // onSubmit may be async (shared backend) or sync (local fallback).
+      const result = await Promise.resolve(onSubmit({ location, type, description }, coordinates))
+
+      if (result?.ok) {
         setSavedAt(Date.now())
         setClockAt(Date.now())
+        setSavedMode(result.mode ?? 'local')
+        setSavedStorage(result.storage ?? null)
+        setWasDuplicate(Boolean(result.duplicate))
         setPhase('success')
         setType('')
         setDescription('')
         setSubmitted(false)
         setTouched({})
       } else {
-        setFailureReason(result.error)
+        setFailureReason(result?.error ?? 'unknown')
         setPhase('failure')
       }
-    }, 450)
+    } catch {
+      setFailureReason('unknown')
+      setPhase('failure')
+    } finally {
+      submittingRef.current = false
+    }
   }
 
   const handleSubmit = (event) => {
@@ -89,6 +125,7 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
   const startNew = () => {
     setPhase('idle')
     setFailureReason(null)
+    setWasDuplicate(false)
   }
 
   return (
@@ -96,9 +133,26 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
       <header>
         <p className="community-block__eyebrow">Community rain check</p>
         <h3 className="community-block__title">Report rain where you are</h3>
+        {apiAvailable && storageMode === 'memory' && (
+          <p className="field__hint">
+            The community server is running without a persistent database, so shared reports are held in memory and
+            may reset when it restarts.
+          </p>
+        )}
         <p className="community-block__hint">
-          <strong>Demo reporting:</strong> entries are stored in this browser on this device only. Nothing is sent
-          to any server, authority, or emergency service, and reports are not shared with other users.
+          {apiAvailable ? (
+            <>
+              <strong>Shared reporting is online.</strong> Reports you submit are sent to the MAUSAM community
+              server and marked <em>unverified</em> — they are community observations, not an official warning or
+              an emergency report, and no personal information is collected.
+            </>
+          ) : (
+            <>
+              <strong>Local demo mode:</strong> the community server is not reachable, so entries are stored in this
+              browser on this device only. They are <strong>not</strong> shared with other users and are not sent to
+              any authority or emergency service.
+            </>
+          )}
         </p>
       </header>
 
@@ -224,7 +278,13 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
             disabled={phase === 'submitting'}
             aria-busy={phase === 'submitting' ? 'true' : undefined}
           >
-            {phase === 'submitting' ? 'Saving locally…' : 'Save report on this device'}
+            {phase === 'submitting'
+              ? apiAvailable
+                ? 'Submitting…'
+                : 'Saving locally…'
+              : apiAvailable
+                ? 'Submit report to community'
+                : 'Save report on this device'}
           </button>
           {phase === 'success' && (
             <button type="button" className="button button--ghost" onClick={startNew}>
@@ -234,22 +294,48 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
         </div>
 
         <p className="report-form__privacy" id="report-privacy">
-          Stored locally under <code>localStorage</code> key <code>mausam.community.reports.v1</code> (demo,
-          capped at 20 entries). Do not enter personal or sensitive information.
+          {apiAvailable ? (
+            <>
+              Submitted to the community server and marked <strong>unverified</strong>. Do not enter personal or
+              sensitive information. This is not an emergency channel.
+            </>
+          ) : (
+            <>
+              Stored locally under <code>localStorage</code> key <code>mausam.community.reports.v1</code> (demo,
+              capped at 20 entries). Do not enter personal or sensitive information.
+            </>
+          )}
         </p>
 
         {phase === 'submitting' && (
           <div className="report-form__status" role="status" aria-live="polite">
-            Saving your report on this device…
+            {apiAvailable ? 'Submitting your report to the community server…' : 'Saving your report on this device…'}
           </div>
         )}
 
         {phase === 'success' && savedAt && (
           <div className="report-form__status report-form__status--success" role="status" aria-live="polite">
-            <p className="report-form__status-title">Saved on this device</p>
+            <p className="report-form__status-title">
+              {savedMode === 'shared' ? 'Report submitted to the community' : 'Saved on this device'}
+            </p>
             <p>
-              Your report was stored locally at {formatDeviceTime(savedAt)}. It was <strong>not</strong> sent to
-              any authority — this is a local demo record.
+              {savedMode === 'shared' ? (
+                <>
+                  {wasDuplicate
+                    ? 'A matching report already existed, so it was not duplicated. '
+                    : 'The server confirmed your report. '}
+                  Recorded at {formatDeviceTime(savedAt)}. It is marked <strong>unverified</strong> and is visible
+                  to other users via the community map.
+                  {savedStorage === 'memory'
+                    ? ' Note: the server is running without a database, so shared reports are held in memory and may be reset when it restarts.'
+                    : ''}
+                </>
+              ) : (
+                <>
+                  Your report was stored locally at {formatDeviceTime(savedAt)}. It was <strong>not</strong> sent to
+                  any server, authority, or emergency service — this is a device-local demo record.
+                </>
+              )}
             </p>
           </div>
         )}
@@ -260,7 +346,9 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
             <p>
               {failureReason === 'storage'
                 ? 'Local storage rejected the write (it may be full or disabled in private browsing). Nothing was saved.'
-                : 'The report could not be saved. Please try again.'}
+                : failureReason === 'invalid'
+                  ? 'The server rejected the report. Please check the fields and try again.'
+                  : 'The report could not be saved. Please try again.'}
             </p>
             <div className="report-form__status-actions">
               <button type="button" className="button button--ghost" onClick={submitDraft}>
@@ -277,8 +365,10 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
       <div className="community-block">
         <header className="block-toolbar">
           <div>
-            <h4 className="block-toolbar__title">Reports stored on this device</h4>
-            <span className="block-toolbar__count">{reports.length} local demo record(s)</span>
+            <h4 className="block-toolbar__title">Your local reports</h4>
+            <span className="block-toolbar__count">
+              {reports.length} device-local record(s) — never uploaded automatically
+            </span>
           </div>
           {reports.length > 0 && (
             <button type="button" className="button button--ghost" onClick={onClear}>
@@ -295,8 +385,12 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
 
         {reports.length === 0 ? (
           <div className="card state-message state-message--empty">
-            <h4>No local reports yet</h4>
-            <p>Reports you save appear here, on this device only. They are never uploaded.</p>
+            <h4>No local records yet</h4>
+            <p>
+              {apiAvailable
+                ? 'Reports submitted while the server is offline fall back to this device and appear here. Successfully shared reports are listed on the community map.'
+                : 'Reports you save appear here, on this device only. They are never uploaded.'}
+            </p>
           </div>
         ) : (
           <ul className="reports-list">
@@ -305,7 +399,7 @@ export function RainReportForm({ defaultLocation = '', reports, onSubmit, onClea
                 <span className="reports-list__place">{report.location}</span>
                 <span className="badge badge--muted">{report.typeLabel}</span>
                 <span className="reports-list__meta">
-                  {formatDeviceTime(report.observedAt)} · local demo record
+                  {formatDeviceTime(report.observedAt)} · device-local record
                 </span>
                 {report.description && <p className="reports-list__desc">{report.description}</p>}
               </li>

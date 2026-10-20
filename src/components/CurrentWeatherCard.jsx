@@ -98,9 +98,15 @@ export function CurrentWeatherCard({ weather }) {
       </dl>
 
       <footer className="current-weather__footer">
-        <span>Observation: {current.time ? formatObservationTime(current.time) : PLACEHOLDER}</span>
+        <span>
+          Model estimate for {current.time ? formatObservationTime(current.time) : PLACEHOLDER}
+        </span>
         {weather.timezone && <span className="current-weather__tz">{weather.timezone}</span>}
       </footer>
+      <p className="current-weather__note muted">
+        Open-Meteo provides a model-interpolated estimate for this location, not a reading from a physical weather
+        station.
+      </p>
     </section>
   )
 }

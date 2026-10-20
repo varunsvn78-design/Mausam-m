@@ -46,10 +46,20 @@ function riskLabel(risk) {
  *   weather: object|null,
  *   status: 'idle'|'loading'|'ready'|'error',
  *   error: Error|null,
+ *   savedAt: string|null,
+ *   refreshFailed: boolean,
  *   onRetry: () => void,
  * }} props
  */
-export function AirQualityAdvisor({ airQuality, weather, status, error, onRetry }) {
+export function AirQualityAdvisor({
+  airQuality,
+  weather,
+  status,
+  error,
+  savedAt = null,
+  refreshFailed = false,
+  onRetry,
+}) {
   const reading = useMemo(() => describeAirQuality(airQuality?.current ?? null), [airQuality])
 
   const plan = useMemo(
@@ -90,6 +100,17 @@ export function AirQualityAdvisor({ airQuality, weather, status, error, onRetry 
 
   return (
     <div className="stack">
+      {refreshFailed && (
+        <p className="insight-note insight-note--warn" role="status">
+          The latest air-quality update could not be fetched. Showing the last saved reading
+          {savedAt ? ` from ${formatDate(savedAt.slice(0, 10))}` : ''} — it may be out of date.
+          {onRetry && (
+            <button type="button" className="button button--ghost insight-note__action" onClick={onRetry}>
+              Refresh
+            </button>
+          )}
+        </p>
+      )}
       <section className="insight-card card" aria-labelledby="aq-current-heading">
         <h3 id="aq-current-heading" className="insight-card__title">
           Current air quality

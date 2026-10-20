@@ -30,6 +30,13 @@ const SCHEMA_VERSION = 1
 /** After this age the cached forecast is flagged as stale (but still shown). */
 export const CACHE_STALE_AFTER_MS = 60 * 60 * 1000 // 1 hour
 
+/**
+ * Hard upper bound on how old a cached forecast may be before it is discarded
+ * even for offline display. Beyond this the forecast window has almost
+ * certainly passed and showing it would be misleading.
+ */
+export const CACHE_MAX_AGE_MS = 48 * 60 * 60 * 1000 // 48 hours
+
 function getStorage() {
   try {
     if (typeof window === 'undefined' || !window.localStorage) return null
@@ -76,10 +83,10 @@ export function saveWeatherCache(data) {
 
 /**
  * Read the cached forecast if it is present and structurally valid.
- * @param {{ maxAgeMs?: number }} [options] entries older than this are discarded (default: 24h)
+ * @param {{ maxAgeMs?: number }} [options] entries older than this are discarded (default: 48h)
  * @returns {{ data: object, savedAt: string, ageMs: number, isStale: boolean } | null}
  */
-export function loadWeatherCache({ maxAgeMs = 24 * 60 * 60 * 1000 } = {}) {
+export function loadWeatherCache({ maxAgeMs = CACHE_MAX_AGE_MS } = {}) {
   const storage = getStorage()
   if (!storage) return null
 

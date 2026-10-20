@@ -26,6 +26,28 @@
   line-height: 1.3;
 }
 
+.insight-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  font-size: 0.9rem;
+}
+
+.insight-note--warn {
+  border-color: #d98a00;
+  background: color-mix(in srgb, #d98a00 12%, var(--color-surface-alt));
+}
+
+.insight-note__action {
+  margin-left: auto;
+}
+
 /* --------------------------------------------------------------- tabs */
 
 .insights-tabs__list {

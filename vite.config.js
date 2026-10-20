@@ -7,6 +7,18 @@ import { VitePWA } from 'vite-plugin-pwa'
 // handled manually via `virtual:pwa-register/react` in src/components/PwaStatus.jsx,
 // so injectRegister is disabled.
 export default defineConfig({
+  // During `npm run dev`, forward /api calls to the optional community
+  // reporting API (start it with `npm run dev:api`). If that server is not
+  // running the frontend simply falls back to its labelled localStorage demo
+  // mode — the app never depends on the backend to render.
+  server: {
+    proxy: {
+      '/api': {
+        target: process.env.API_PROXY_TARGET || 'http://localhost:4000',
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

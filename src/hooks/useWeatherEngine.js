@@ -7,6 +7,7 @@ import {
   saveSelectedLocation,
   saveWeatherCache,
   clearSelectedLocation,
+  clearWeatherCache,
   loadRecentLocations,
   saveRecentLocation,
   clearRecentLocations,
@@ -97,6 +98,15 @@ export function useWeatherEngine() {
 
     if (navigator.onLine !== false) {
       load(saved, { background: Boolean(cached) })
+    } else if (!cached) {
+      // Offline with a saved location but no usable cache: do not stay stuck on
+      // 'loading' forever. Surface the offline situation as an error state.
+      setStatus('error')
+      setError(
+        new Error(
+          'You are offline and no cached forecast is available for this location. Reconnect to load weather.',
+        ),
+      )
     }
     // Runs once on mount by design.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,6 +139,7 @@ export function useWeatherEngine() {
     abortRef.current?.abort()
     requestIdRef.current += 1
     clearSelectedLocation()
+    clearWeatherCache()
     setLocation(null)
     setWeather(null)
     setCacheInfo(null)

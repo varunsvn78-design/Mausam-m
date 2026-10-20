@@ -5,8 +5,25 @@ import { WifiOff } from 'lucide-react'
 import { DEMO_MARKERS, RAIN_STATUS_META, MAP_FALLBACK_VIEW } from '../config/communityDemo.js'
 import { useOnlineStatus } from '../hooks/useOnlineStatus.js'
 
-const OSM_ATTRIBUTION =
+// Leaflet's attribution control sets its option via innerHTML, so this HTML
+// string is correct THERE. It must never be rendered as a React child — React
+// escapes it and the anchor markup shows as literal text (the original bug).
+const OSM_ATTRIBUTION_HTML =
   'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+
+// Category labels for community report markers, keyed by observation id.
+const REPORT_CATEGORY_META = Object.freeze({
+  'rain-started': { label: 'Rain started', tone: 'primary' },
+  'light-rain': { label: 'Light rain', tone: 'primary' },
+  'heavy-rain': { label: 'Heavy rain', tone: 'danger' },
+  'no-rain': { label: 'No rain yet', tone: 'info' },
+  thunderstorm: { label: 'Thunderstorm', tone: 'danger' },
+  other: { label: 'Other observation', tone: 'muted' },
+})
+
+function reportTone(type) {
+  return REPORT_CATEGORY_META[type]?.tone ?? 'muted'
+}
 
 function escapeHtml(value) {
   return String(value)
@@ -28,6 +45,20 @@ function isValidCoord(latitude, longitude) {
 
 function markerHtml(tone, extraClass = '') {
   return `<span class="demo-marker demo-marker--${tone} ${extraClass}" aria-hidden="true"></span>`
+}
+
+function reportMarkerHtml(tone) {
+  return `<span class="report-marker report-marker--${tone}" aria-hidden="true"></span>`
+}
+
+function formatReportTime(iso) {
+  try {
+    const date = new Date(iso)
+    if (Number.isNaN(date.getTime())) return null
+    return date.toLocaleString()
+  } catch {
+    return null
+  }
 }
 
 function popupHtml({ name, badgeTone, badgeLabel, rows, note }) {
@@ -57,10 +88,22 @@ function buildLegendHtml() {
         `<p class="demo-map-legend__item"><span class="demo-map-legend__dot demo-marker--${tone}"></span>${label}</p>`,
     )
     .join('')
+  const reportItems = [
+    ['primary', 'Community report (light)'],
+    ['danger', 'Community report (heavy)'],
+    ['info', 'Community report (no rain)'],
+  ]
+    .map(
+      ([tone, label]) =>
+        `<p class="demo-map-legend__item"><span class="demo-map-legend__dot report-marker--${tone}"></span>${label}</p>`,
+    )
+    .join('')
   return `
     <p class="demo-map-legend__title">Legend</p>
     ${items}
-    <p class="demo-map-legend__note">Markers show demonstration data only — not live observations.</p>`
+    <p class="demo-map-legend__subtitle">Community reports (unverified)</p>
+    ${reportItems}
+    <p class="demo-map-legend__note">Demo markers are simulated. Community reports are user-submitted and unverified — not official observations.</p>`
 }
 
 /**
@@ -73,16 +116,32 @@ function buildLegendHtml() {
  * - Resizes with its container (ResizeObserver → invalidateSize) and on
  *   window resize (Leaflet handles window resize itself).
  *
- * @param {{ location?: object|null, isActive?: boolean }} props selected Member 1
- *        location; `isActive` re-syncs Leaflet's size when the parent tab is
- *        (re)shown after being hidden.
+ * @param {{
+ *   location?: object|null,
+ *   isActive?: boolean,
+ *   reports?: Array<object>,
+ *   onRefresh?: (options?: object) => void,
+ *   apiAvailable?: boolean,
+ *   storageMode?: string|null,
+ * }} props selected Member 1 location; `isActive` re-syncs Leaflet's size when
+ *   the parent tab is (re)shown after being hidden. `reports` are shared
+ *   community submissions (already labelled unverified by the server).
  */
-export function CommunityMap({ location, isActive = true }) {
+export function CommunityMap({
+  location,
+  isActive = true,
+  reports = [],
+  onRefresh,
+  apiAvailable = false,
+  storageMode = null,
+}) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const youMarkerRef = useRef(null)
+  const reportsLayerRef = useRef(null)
   const [status, setStatus] = useState('loading') // loading | ready | error
   const [attempt, setAttempt] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const isOnline = useOnlineStatus()
 
   // Leaflet mis-measures a container that was display:none (hidden tab);
@@ -117,9 +176,11 @@ export function CommunityMap({ location, isActive = true }) {
       mapRef.current = map
 
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: OSM_ATTRIBUTION,
+        attribution: OSM_ATTRIBUTION_HTML,
         maxZoom: 19,
       }).addTo(map)
+
+      reportsLayerRef.current = L.layerGroup().addTo(map)
 
       const validMarkers = []
       for (const marker of DEMO_MARKERS) {
@@ -197,6 +258,7 @@ export function CommunityMap({ location, isActive = true }) {
         /* marker already gone */
       }
       youMarkerRef.current = null
+      reportsLayerRef.current = null
       try {
         map.remove()
       } catch {
@@ -256,16 +318,97 @@ export function CommunityMap({ location, isActive = true }) {
     }
   }, [location, status])
 
+  // Shared community report markers (unverified user submissions with real
+  // coordinates). Never invented — only reports the backend actually returned.
+  useEffect(() => {
+    const layer = reportsLayerRef.current
+    if (!layer || status !== 'ready') return undefined
+
+    layer.clearLayers()
+    for (const report of Array.isArray(reports) ? reports : []) {
+      if (!isValidCoord(report.latitude, report.longitude)) continue
+      const tone = reportTone(report.type)
+      const marker = L.marker([Number(report.latitude), Number(report.longitude)], {
+        icon: L.divIcon({
+          className: '',
+          html: reportMarkerHtml(tone),
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        }),
+        title: `${report.location} — community report (unverified)`,
+        alt: `${report.location} — community-submitted report, unverified`,
+        keyboard: true,
+      })
+      const submitted = formatReportTime(report.submittedAt ?? report.observedAt)
+      marker.bindPopup(
+        popupHtml({
+          name: report.location,
+          badgeTone: 'warning',
+          badgeLabel: 'COMMUNITY · UNVERIFIED',
+          rows: [
+            `Observation: ${report.typeLabel ?? report.type}`,
+            report.description ? `Note: ${report.description}` : null,
+            submitted ? `Submitted: ${submitted}` : null,
+            `Source: ${report.source ?? 'web'} · status: ${report.verificationStatus ?? 'unverified'}`,
+          ],
+          note: 'User-submitted community report. Not an official observation or warning and not verified.',
+        }),
+      )
+      marker.addTo(layer)
+    }
+
+    return () => {
+      try {
+        layer.clearLayers()
+      } catch {
+        /* layer already removed */
+      }
+    }
+  }, [reports, status])
+
+  const refreshReports = async () => {
+    if (!onRefresh) return
+    setIsRefreshing(true)
+    try {
+      await Promise.resolve(onRefresh())
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
   return (
     <div className="community-block community-map">
-      <header>
-        <p className="community-block__eyebrow">Interactive map</p>
-        <h3 className="community-block__title">Rain check map (demonstration markers)</h3>
-        <p className="community-block__hint">
-          Static sample markers for six cities with simulated rainfall status. Click or focus a marker for details;
-          tiles © OpenStreetMap contributors.
-        </p>
+      <header className="block-toolbar">
+        <div>
+          <p className="community-block__eyebrow">Interactive map</p>
+          <h3 className="community-block__title">Community rain map</h3>
+          <p className="community-block__hint">
+            Simulated demo markers for six cities plus <strong>community-submitted reports</strong> (unverified).
+            Click or focus a marker for details.
+          </p>
+        </div>
+        {onRefresh && (
+          <button
+            type="button"
+            className="button button--ghost"
+            onClick={refreshReports}
+            disabled={isRefreshing}
+            aria-busy={isRefreshing ? 'true' : undefined}
+          >
+            {isRefreshing ? 'Refreshing…' : 'Refresh reports'}
+          </button>
+        )}
       </header>
+
+      <div className="community-map__meta">
+        <span className={`badge badge--${apiAvailable ? 'success' : 'muted'}`}>
+          {apiAvailable ? 'Community server: online' : 'Community server: offline (demo markers only)'}
+        </span>
+        <span className="badge badge--muted">{reports.length} community report(s)</span>
+        {apiAvailable && storageMode === 'memory' && (
+          <span className="badge badge--warning">in-memory (resets on restart)</span>
+        )}
+      </div>
 
       <div className="community-map__frame">
         <div className="community-map__canvas" ref={containerRef} />
@@ -294,9 +437,20 @@ export function CommunityMap({ location, isActive = true }) {
         </p>
       )}
 
+      {reports.length === 0 && (
+        <p className="community-map__empty" role="status">
+          No community reports submitted yet. Demo markers are shown for illustration; the rain-check form can add
+          real community reports when the server is online.
+        </p>
+      )}
+
       <p className="community-map__caption">
         <span>
-          {OSM_ATTRIBUTION} · Popups show <strong>demonstration data</strong>, not live observations.
+          Map data ©{' '}
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer noopener">
+            OpenStreetMap
+          </a>{' '}
+          contributors · Demo markers are simulated; community reports are user-submitted and unverified.
         </span>
         <span className="badge badge--demo">Demo markers</span>
       </p>

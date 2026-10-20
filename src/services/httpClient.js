@@ -41,12 +41,15 @@ export function buildUrl(baseUrl, params = {}) {
  * Fetch JSON from `url`.
  *
  * @param {string} url
- * @param {{ signal?: AbortSignal, timeoutMs?: number }} [options]
+ * @param {{ signal?: AbortSignal, timeoutMs?: number, serviceName?: string }} [options]
  * @returns {Promise<any>}
  */
-export async function fetchJson(url, { signal, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+export async function fetchJson(url, { signal, timeoutMs = DEFAULT_TIMEOUT_MS, serviceName = 'weather service' } = {}) {
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(new ApiError('timeout', { kind: 'timeout', url })), timeoutMs)
+  const timeoutId = setTimeout(
+    () => controller.abort(new ApiError(`${serviceName} request timed out.`, { kind: 'timeout', url })),
+    timeoutMs,
+  )
 
   // Forward an external abort (e.g. the user typed another character) to the request.
   const onExternalAbort = () => controller.abort(signal?.reason)
@@ -67,7 +70,7 @@ export async function fetchJson(url, { signal, timeoutMs = DEFAULT_TIMEOUT_MS } 
       if (reason instanceof ApiError && reason.kind === 'timeout') throw reason
       throw new ApiError('Request was cancelled', { kind: 'aborted', url, cause: error })
     }
-    throw new ApiError('Unable to reach the weather service. Check your connection.', {
+    throw new ApiError(`Unable to reach the ${serviceName}. Check your connection.`, {
       kind: 'network',
       url,
       cause: error,
@@ -78,7 +81,7 @@ export async function fetchJson(url, { signal, timeoutMs = DEFAULT_TIMEOUT_MS } 
   }
 
   if (!response.ok) {
-    throw new ApiError(`The weather service responded with status ${response.status}.`, {
+    throw new ApiError(`The ${serviceName} responded with status ${response.status}.`, {
       kind: 'http',
       status: response.status,
       url,
@@ -88,7 +91,7 @@ export async function fetchJson(url, { signal, timeoutMs = DEFAULT_TIMEOUT_MS } 
   try {
     return await response.json()
   } catch (error) {
-    throw new ApiError('The weather service returned malformed data.', { kind: 'parse', url, cause: error })
+    throw new ApiError(`The ${serviceName} returned malformed data.`, { kind: 'parse', url, cause: error })
   }
 }
 

@@ -6,14 +6,46 @@ Adaptive Weather Intelligence and Daily Planning Platform-React, Vite and Open-M
 ```bash
 npm install
 npm run dev      # start the Vite dev server (http://localhost:5173)
+npm run dev:api  # (optional) start the community reporting API (http://localhost:4000)
 npm run build    # production build into dist/
 npm run preview  # preview the production build
 npm run lint     # ESLint
-npm test         # Vitest (pure service-layer tests)
+npm test         # Vitest (frontend service-layer tests)
+npm run test:api # Node test runner (community reporting API tests)
 ```
 
-No API key or environment variable is required. Weather data comes from the
-public [Open-Meteo](https://open-meteo.com/) APIs.
+No API key is required. Weather data comes from the public
+[Open-Meteo](https://open-meteo.com/) APIs, so the app runs fully without any
+backend. The community reporting server is **optional**: start it with
+`npm run dev:api` and the Vite dev server proxies `/api` to it. When it is not
+running (or unreachable), the rain-check form falls back to clearly-labelled
+device-local storage — it never pretends a report was shared.
+
+### Community reporting API (optional)
+
+`server/` is a small Express app exposing `/api/health`, `/api/reports`
+(GET/POST) and `/api/reports/:id`. Storage is chosen at startup:
+
+- **MongoDB** when `MONGODB_URI` is set (persistent, shared across users);
+- **in-memory** otherwise (single process, resets on restart).
+
+Every response includes a `storage` field (`mongodb` | `memory`) that the UI
+surfaces, so in-memory data is never presented as persistent. In-memory reports
+are **lost when the API process restarts**; MongoDB reports persist.
+
+To enable a persistent store, copy the example env file and fill it in. The API
+scripts load `.env` automatically (`node --env-file-if-exists=.env`), and `.env`
+is git-ignored — never commit real credentials:
+
+```bash
+cp .env.example .env      # Windows: copy .env.example .env
+# then edit .env and set MONGODB_URI=your-atlas-connection-string
+npm run dev:api
+```
+
+All submitted reports are community observations and are stored with
+`verificationStatus: "unverified"`; there is no verification process and none
+is implied.
 
 ## Modules
 
@@ -62,22 +94,27 @@ recommendation logic is owned by Member 2.
 
 - Interactive Leaflet map with OpenStreetMap tiles: clearly-labelled
   demonstration markers for six cities, a "your location" marker from the
-  selected weather location, legend, loading/error/retry and offline states.
+  selected weather location, **plus real community-submitted report markers**
+  (square pins, labelled *unverified*) fetched from the optional reporting API.
+  Legend, loading/error/retry, refresh-reports and offline states included.
 - Simulated village records and unified-service availability cards, each
   labelled as demo/sample data (filter + empty state included).
-- Device-local rain-check reporting form: validation, inline errors,
-  success/failure/retry states; reports are stored **only** in this browser's
-  `localStorage` (capped at 20) and are never uploaded.
+- Rain-check reporting form with two honest modes: **shared** (submitted to the
+  optional community server and marked unverified) or **local** (stored in this
+  browser's `localStorage`, capped at 20, and clearly labelled as not shared).
+  Old local demo records are never auto-uploaded.
 - Dismissible demo emergency-alert banner — never presented as an official
   warning.
 - Online/offline connectivity pill in the header.
 - Installable PWA via `vite-plugin-pwa`: app-shell precache, OSM tile
   runtime cache (Open-Meteo responses are deliberately not SW-cached —
   offline weather remains Member 1's labelled local cache), offline-ready
-  notice and an explicit update-prompt (no silent swaps).
+  notice, an explicit update-prompt (no silent swaps) and an opt-in install
+  prompt driven by the browser's real installability event.
 
-All community content is clearly-labelled demonstration data or device-local
-records; see [`docs/community-maps-pwa.md`](docs/community-maps-pwa.md).
+All community content is clearly-labelled demonstration data, device-local
+records, or user-submitted unverified community reports; see
+[`docs/community-maps-pwa.md`](docs/community-maps-pwa.md).
 
 ## Insights — air, farm & feel (Member 4)
 

@@ -7,7 +7,19 @@ export default [
   { ignores: ['dist'] },
   js.configs.recommended,
   {
-    files: ['**/*.{js,jsx}'],
+    // Node-only code: the optional reporting API and build configuration.
+    files: ['server/**/*.js', 'vite.config.js', 'vitest.config.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      globals: globals.node,
+      parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+  {
+    files: ['src/**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
